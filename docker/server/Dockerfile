@@ -6,7 +6,8 @@ RUN mkdir -p ${WORKSPACE}
 
 WORKDIR ${WORKSPACE}
 
-ADD . ${WORKSPACE}
+COPY server/go.mod ./
+COPY server/go.sum ./
 
 RUN go mod download
 RUN go mod tidy

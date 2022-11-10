@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	database "todolist.go/db"
+	database "server/db"
 )
 
 // TaskList renders list of tasks in DB
@@ -26,7 +26,7 @@ func TaskList(ctx *gin.Context) {
 	}
 
 	// Render tasks
-	ctx.HTML(http.StatusOK, "task_list.html", gin.H{"Title": "Task list", "Tasks": tasks})
+	ctx.HTML(http.StatusOK, "task_list.gohtml", gin.H{"Title": "Task list", "Tasks": tasks})
 }
 
 // ShowTask renders a task with given ID
@@ -54,5 +54,5 @@ func ShowTask(ctx *gin.Context) {
 	}
 
 	// Render task
-	ctx.String(http.StatusOK, task.Title)  // Modify it!!
+	ctx.HTML(http.StatusOK, "task.gohtml", task)
 }

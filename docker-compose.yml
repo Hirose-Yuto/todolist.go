@@ -1,9 +1,26 @@
 version: "3"
 services:
-  app:
+  proto:
     build:
       context: .
+      dockerfile: docker/proto/Dockerfile
+    volumes:
+      - ./proto:/tmp/proto
+      - ./server/proto:/tmp/proto/server
+      - ./client/src/proto:/tmp/proto/client
+  envoy:
+    build:
+      context: ./docker/envoy
       dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    links:
+      - app
+  app:
+    command: ["go", "run", "main.go"]
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile
     container_name: app
     tty: true
     environment:
@@ -13,15 +30,26 @@ services:
       DB_PASSWORD: sysdes
       DB_NAME: sysdes_todolist_db
     volumes:
-      - .:/go/src/app
+      - ./server:/go/src/app
     ports:
-      - 8000:8000
+      - "9090:9090"
     depends_on:
       - db
+      - proto
+  client:
+    command: ["npm", "start"]
+    build:
+      context: ./docker/client/
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/client
+    ports:
+      - "3000:3000"
+    stdin_open: true
   db:
     build:
-      context: ./docker/db
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/db/Dockerfile
     platform: linux/x86_64
     container_name: db
     environment:
@@ -32,9 +60,9 @@ services:
       TZ: 'Asia/Tokyo'
     volumes:
       - ./docker/db/sql:/docker-entrypoint-initdb.d
-      #- ./docker/db/data:/var/lib/mysql  ## uncomment to keep the data
+      - ./docker/db/data:/var/lib/mysql  # uncomment to keep the data
     ports:
-      - 3306:3306
+      - "3306:3306"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
@@ -44,6 +72,6 @@ services:
       - PMA_USER=root
       - PMA_PASSWORD=root
     ports:
-      - 8080:80
+    - "8001:80"
     depends_on:
       - db
