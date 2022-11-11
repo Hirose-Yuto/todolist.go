@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `user_tokens`;
 DROP TABLE IF EXISTS `tasks`;
 DROP TABLE IF EXISTS `users_have_tasks`;
 DROP TABLE IF EXISTS `tags`;
 DROP TABLE IF EXISTS `tasks_have_tags`;
 DROP TABLE IF EXISTS `comments`;
-DROP TABLE IF EXISTS `user_tokens`;
 
 CREATE TABLE `users` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -13,11 +13,21 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `user_tokens` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `token` longtext,
+    `user_id` bigint(20) NOT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`user_id`) REFERENCES users(`id`)
+) DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `tasks` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `title` varchar(50) NOT NULL,
-    `memo` longtext NOT NULL DEFAULT '',
+    `memo` longtext,
     `is_done` boolean NOT NULL DEFAULT b'0',
     `priority` int(10) NOT NULL DEFAULT b'0',
     `deadline` datetime,
@@ -34,6 +44,7 @@ CREATE TABLE `users_have_tasks` (
     FOREIGN KEY (`user_id`) REFERENCES users(`id`),
     FOREIGN KEY (`task_id`) REFERENCES tasks(`id`)
 ) DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE `tags` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -52,6 +63,7 @@ CREATE TABLE `tasks_have_tags` (
     FOREIGN KEY (`tag_id`) REFERENCES tags(`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
+
 CREATE TABLE `comments` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `content` longtext,
@@ -62,14 +74,4 @@ CREATE TABLE `comments` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id`),
     FOREIGN KEY (`task_id`) REFERENCES tasks(`id`)
-) DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `user_tokens` (
-    `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `token` longtext,
-    `user_id` bigint(20) NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES users(`id`)
 ) DEFAULT CHARSET=utf8mb4;

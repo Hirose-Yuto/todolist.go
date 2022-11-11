@@ -25,7 +25,7 @@ services:
     tty: true
     environment:
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 3309
       DB_USER: sysdes
       DB_PASSWORD: sysdes
       DB_NAME: sysdes_todolist_db
@@ -46,6 +46,8 @@ services:
     ports:
       - "3000:3000"
     stdin_open: true
+    depends_on:
+      - proto
   db:
     build:
       context: .
@@ -62,7 +64,7 @@ services:
       - ./docker/db/sql:/docker-entrypoint-initdb.d
       - ./docker/db/data:/var/lib/mysql  # uncomment to keep the data
     ports:
-      - "3306:3306"
+      - "3309:3306"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
