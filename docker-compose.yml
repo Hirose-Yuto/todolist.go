@@ -10,8 +10,10 @@ services:
       - ./client/src/proto:/tmp/proto/client
   envoy:
     build:
-      context: ./docker/envoy
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/envoy/Dockerfile
+    volumes:
+      - ./docker/envoy/envoy.yaml:/etc/envoy/envoy.yaml
     ports:
       - "8080:8080"
     links:
@@ -25,7 +27,7 @@ services:
     tty: true
     environment:
       DB_HOST: db
-      DB_PORT: 3309
+      DB_PORT: 3306
       DB_USER: sysdes
       DB_PASSWORD: sysdes
       DB_NAME: sysdes_todolist_db
