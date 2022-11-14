@@ -12,6 +12,7 @@ import (
 	"os"
 	"server/db"
 	pb "server/proto"
+	"server/service"
 	"server/service/auth"
 	"time"
 )
@@ -19,10 +20,6 @@ import (
 type server_m struct {
 	pb.UnimplementedMessengerServer
 	requests []*pb.MessageRequest
-}
-
-type server_user struct {
-	pb.UnimplementedUserServiceServer
 }
 
 const port = 9090
@@ -46,7 +43,7 @@ func main() {
 
 	s := grpc.NewServer(grpc.UnaryInterceptor(auth.AuthInterceptor()))
 	pb.RegisterMessengerServer(s, &server_m{})
-	pb.RegisterUserServiceServer(s, &server_user{})
+	pb.RegisterUserServiceServer(s, &service.UserServer{})
 	pb.RegisterLoginServiceServer(s, &auth.LoginServer{})
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {

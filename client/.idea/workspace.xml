@@ -2,23 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="02e02287-7ceb-475f-b5e0-58872593f910" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/server/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../db/conn.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/db/conn.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../db/entity.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/db/entity.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker/db/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/db/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker/db/my.cnf" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/db/my.cnf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/../server/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/../server/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../main.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../service/default.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/default.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../service/task.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/task.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../views/_footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/../server/views/_footer.gohtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../views/_header.html" beforeDir="false" afterPath="$PROJECT_DIR$/../server/views/_header.gohtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../views/error.html" beforeDir="false" afterPath="$PROJECT_DIR$/../server/views/error.gohtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../views/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../server/views/index.gohtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../views/task_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/../server/views/task_list.gohtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/service/auth/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/auth.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,19 +29,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/amida/Dropbox/Mac/Documents/東工大講義資料/2022/3Q/システム設計演習/src/todolist.go/client",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "/Users/amida/Dropbox/Mac/Documents/東工大講義資料/2022/3Q/システム設計演習/src/todolist.go/client/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/amida/Dropbox/Mac/Documents/東工大講義資料/2022/3Q/システム設計演習/src/todolist.go/client&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/amida/Dropbox/Mac/Documents/東工大講義資料/2022/3Q/システム設計演習/src/todolist.go/client/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -67,6 +52,10 @@
       <updated>1667054324432</updated>
       <workItem from="1667054329251" duration="1493000" />
       <workItem from="1667648965069" duration="1600000" />
+      <workItem from="1667915266914" duration="965000" />
+      <workItem from="1668232087164" duration="3637000" />
+      <workItem from="1668257818689" duration="3108000" />
+      <workItem from="1668419026421" duration="6186000" />
     </task>
     <servers />
   </component>
