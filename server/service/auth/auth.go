@@ -50,7 +50,6 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 			"no cookie",
 		)
 	}
-	fmt.Printf("rawCookie %s\n", vs[0])
 
 	regexResult := tokenRegex.FindString(vs[0])
 	if regexResult == "" {
@@ -59,7 +58,6 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 			"no cookie",
 		)
 	}
-	fmt.Println(regexResult)
 
 	// token=[^;]+;
 	token := regexResult[6 : len(regexResult)-1]
@@ -72,6 +70,8 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 			token,
 		)
 	}
+
+	fmt.Println("authenticated!!")
 
 	return handler(ctx, req)
 }
