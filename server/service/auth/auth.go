@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"net/http"
+	"regexp"
 )
 
 var noAuthRoutes = map[string]bool{
@@ -15,6 +15,8 @@ var noAuthRoutes = map[string]bool{
 	"/messenger.Messenger/GetMessages": true,
 	//"/messenger.Messenger/CreateMessage": true,
 }
+
+var tokenRegex = regexp.MustCompile("token=[^;]+;")
 
 func AuthInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -48,32 +50,26 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 			"no cookie",
 		)
 	}
-	rawCookie := vs[0]
-	if len(rawCookie) == 0 {
+	fmt.Printf("rawCookie %s\n", vs[0])
+
+	regexResult := tokenRegex.FindString(vs[0])
+	if regexResult == "" {
 		return nil, status.Error(
 			codes.Unauthenticated,
 			"no cookie",
 		)
 	}
+	fmt.Println(regexResult)
 
-	// Cookie情報をパースする
-	parser := &http.Request{Header: http.Header{"cookie": []string{rawCookie}}}
-
-	token, err := parser.Cookie("token")
+	// token=[^;]+;
+	token := regexResult[6 : len(regexResult)-1]
 	fmt.Printf("token: %s\n", token)
-	if err != nil {
-		return nil, status.Errorf(
-			codes.Unauthenticated,
-			"could not read auth token: %v",
-			err,
-		)
-	}
 
-	if token.Value != "token" {
+	if token != "token" {
 		return nil, status.Errorf(
 			codes.Unauthenticated,
 			"invalid token: %v",
-			err,
+			token,
 		)
 	}
 
