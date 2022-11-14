@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+type User struct {
+}
+
 // Task corresponds to a row in `tasks` table
 type Task struct {
 	ID        uint64    `db:"id"`
