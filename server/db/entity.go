@@ -15,8 +15,7 @@ type UserToken struct {
 	ID        uint64    `db:"id"`
 	Token     string    `db:"token"`
 	UserId    uint64    `db:"user_id"`
-	CreatedAt time.Time `db:"create_at"`
-	UpdatedAt time.Time `db:"update_at"`
+	ExpiredAt time.Time `db:"expired_at"`
 }
 
 type Task struct {

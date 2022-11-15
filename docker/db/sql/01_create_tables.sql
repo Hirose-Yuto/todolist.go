@@ -18,7 +18,7 @@ CREATE TABLE `user_tokens` (
     `token` longtext,
     `user_id` bigint(20) NOT NULL,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `expired_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id`)
 ) DEFAULT CHARSET=utf8mb4;

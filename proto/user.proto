@@ -8,12 +8,14 @@ package user;
 
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserInfo);
-  rpc UpdateUser (UserUpdateRequest) returns (UserInfo);
+  rpc UpdateAccountName (AccountNameUpdateRequest) returns (google.protobuf.Empty);
+  rpc UpdatePassword (PasswordUpdateRequest) returns (google.protobuf.Empty);
   rpc GetUserInfo (UserInfoRequest) returns (UserInfo);
 }
 
 service LoginService {
-  rpc Login (LoginRequest) returns (google.protobuf.Empty);
+  rpc Login (LoginRequest) returns (UserInfo);
+  rpc LoginWithCredentials (google.protobuf.Empty) returns (UserInfo);
   rpc Logout (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
@@ -24,28 +26,24 @@ message UserCreateRequest {
 
 
 message UserInfoRequest {
-  int32 user_id = 1;
+  uint64 user_id = 1;
 }
 
-message UserUpdateRequest {
-  int32 user_id = 1;
-  string account_name = 2;
-  string old_password = 3;
-  string new_password = 4;
+message AccountNameUpdateRequest {
+  string account_name = 1;
+}
+
+message PasswordUpdateRequest {
+  string old_password = 1;
+  string new_password = 2;
 }
 
 message UserInfo {
-  int32 user_id = 1;
+  uint64 user_id = 1;
   string account_name = 2;
 }
 
 message LoginRequest {
   string account_name = 1;
   string password = 2;
-}
-
-message User {
-  int32 user_id = 1;
-  string account_name = 2;
-  string password_hash = 3;
 }

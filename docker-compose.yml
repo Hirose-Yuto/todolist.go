@@ -25,12 +25,6 @@ services:
       dockerfile: ./docker/server/Dockerfile
     container_name: app
     tty: true
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: sysdes
-      DB_PASSWORD: sysdes
-      DB_NAME: sysdes_todolist_db
     volumes:
       - ./server:/go/src/app
     ports:

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -25,6 +26,10 @@ type server_m struct {
 const port = 9090
 
 func main() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal(err)
+	}
+
 	// initialize DB connection
 	dsn := db.DefaultDSN(
 		os.Getenv("DB_HOST"),
@@ -41,10 +46,12 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer(grpc.UnaryInterceptor(auth.AuthInterceptor()))
+	s := grpc.NewServer(grpc.UnaryInterceptor(auth.Interceptor()))
+
 	pb.RegisterMessengerServer(s, &server_m{})
 	pb.RegisterUserServiceServer(s, &service.UserServer{})
 	pb.RegisterLoginServiceServer(s, &auth.LoginServer{})
+
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
