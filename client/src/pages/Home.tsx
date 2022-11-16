@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from "react"
-import axios from "axios";
 import {MessengerClient} from "../proto/MessangerServiceClientPb"
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {MessageRequest} from "../proto/messanger_pb";
 import {credentials, Metadata} from "@grpc/grpc-js";
 import {LoginServiceClient} from "../proto/UserServiceClientPb";
-import {LoginRequest} from "../proto/user_pb";
+import {LoginRequest, UserInfo} from "../proto/user_pb";
 import {Button} from "@mui/material";
 
 const Home = () => {
+    const [user, setUser] = useState<UserInfo | null>(null)
     const [a, setA] = useState("")
 
     // useEffect(() => {
@@ -41,6 +41,7 @@ const Home = () => {
         {
             a
         }
+        {user && user.getAccountName()}
     </>)
 }
 
