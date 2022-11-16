@@ -12,7 +12,9 @@ const Login = () => {
     const [accountName, setAccountName] = useState("")
     const [password, setPassword] = useState("")
 
-    const Login = () => {
+    const Login = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
         const client = new LoginServiceClient(process.env.REACT_APP_BACKEND_URL ?? "")
         const req = new LoginRequest()
         req.setAccountName(accountName)
@@ -27,7 +29,7 @@ const Login = () => {
         <Container sx={{py: 5}}>
             <Typography variant="h4">ログインしてください</Typography>
             <Box sx={{border: 1, borderColor: grey[200], boxShadow: 1, my: 1}}>
-                <form>
+                <form onSubmit={Login}>
                     <Stack spacing={2} sx={{p: 2}}>
                         <FormControl variant="standard" required>
                             <InputLabel htmlFor="name">アカウント名</InputLabel>
@@ -40,9 +42,10 @@ const Login = () => {
                             <Input id="password"
                                    onChange={(e) => setPassword(e.target.value)}
                                    type="password"
+                                   autoComplete="on"
                                    fullWidth/>
                         </FormControl>
-                        <Button onClick={Login} type="submit">ログイン</Button>
+                        <Button type="submit">ログイン</Button>
                     </Stack>
                 </form>
             </Box>

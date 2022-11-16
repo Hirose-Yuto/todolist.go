@@ -28,26 +28,28 @@ function App() {
         client.loginWithCredentials(new Empty(), null).then((r: UserInfo) => {
             setUser(r)
             console.log(r)
+        }).catch((r) => {
+            console.log(r)
+            console.log("auto login failed")
         })
     }, [])
 
     return (
         <div className="App">
             <UserContext.Provider value={{user, setUser}}>
-                {
-                    user ? <BrowserRouter>
+                <BrowserRouter>
+                    {
+                        user ?
                             <Routes>
                                 <Route path={"/"} element={<Home/>}/>
                             </Routes>
-                        </BrowserRouter>
-                        :
-                        <BrowserRouter>
+                            :
                             <Routes>
                                 <Route path={"/"} element={<Login/>}/>
                                 <Route path={"/create-account"} element={<CreateAccount/>}/>
                             </Routes>
-                        </BrowserRouter>
-                }
+                    }
+                </BrowserRouter>
             </UserContext.Provider>
         </div>
     );

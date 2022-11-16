@@ -2,16 +2,17 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"net/http"
-	"reflect"
+	"os"
 	database "server/db"
 	pb "server/proto"
-	"server/service"
 )
 
 type LoginServer struct {
@@ -23,7 +24,7 @@ func (s *LoginServer) Login(ctx context.Context, r *pb.LoginRequest) (*pb.UserIn
 	if accountName == "" || password == "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid argument")
 	}
-	passwordHash := service.Hash(password)
+	passwordHash := Hash(password)
 
 	db, err := database.GetConnection()
 	if err != nil {
@@ -32,9 +33,7 @@ func (s *LoginServer) Login(ctx context.Context, r *pb.LoginRequest) (*pb.UserIn
 
 	var user database.User
 	if err := db.Get(&user, "SELECT * FROM users WHERE account_name = ? AND password_hash = ?", accountName, passwordHash); err != nil {
-		return nil, status.Error(codes.Internal, "internal db error")
-	}
-	if reflect.DeepEqual(user, database.User{}) {
+		fmt.Println(err)
 		return nil, status.Error(codes.InvalidArgument, "invalid account name or password")
 	}
 
@@ -57,12 +56,14 @@ func (s *LoginServer) LoginWithCredentials(ctx context.Context, _ *empty.Empty) 
 
 	var user database.User
 	if err := db.Get(&user, "SELECT * FROM users WHERE id = ?", userId); err != nil {
-		return nil, status.Error(codes.Internal, "internal error")
-	}
-	if reflect.DeepEqual(user, database.User{}) {
 		return nil, status.Error(codes.InvalidArgument, "the user doesn't exist")
 	}
-	return nil, nil
+
+	if err := SetLatestTokenToHeader(user.ID, ctx); err != nil {
+		return nil, err
+	}
+
+	return database.TransUser(&user), nil
 }
 
 func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty, error) {
@@ -82,4 +83,12 @@ func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty,
 	}
 
 	return nil, nil
+}
+
+func Hash(pw string) []byte {
+	salt := os.Getenv("HASH_SALT")
+	h := sha256.New()
+	h.Write([]byte(salt))
+	h.Write([]byte(pw))
+	return h.Sum(nil)
 }

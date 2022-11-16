@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"net/http"
-	"reflect"
 	database "server/db"
 	"time"
 )
@@ -44,14 +43,12 @@ func UpdateToken(userId uint64) (*database.UserToken, error) {
 
 	var token database.UserToken
 	if err = db.Get(&token, "SELECT * from user_tokens WHERE user_id = ?", userId); err != nil {
-		return &database.UserToken{}, status.Error(codes.Internal, "internal error")
-	}
-	if reflect.DeepEqual(token, database.UserToken{}) {
 		token, err = createDbToken(userId, db)
 		if err != nil {
 			return &database.UserToken{}, err
 		}
 	}
+
 	if time.Now().After(token.ExpiredAt) {
 		token, err = updateDbToken(token, db)
 		if err != nil {
@@ -104,7 +101,7 @@ func generateNewToken(userId uint64) (database.UserToken, error) {
 	}, nil
 }
 
-func IsValidToken(tokenString string) (bool, error) {
+func IsValidToken(tokenString string) (bool, uint64, error) {
 	// ToDo
-	return tokenString == "token", nil
+	return tokenString == "token", 0, nil
 }

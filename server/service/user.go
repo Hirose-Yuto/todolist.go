@@ -2,12 +2,10 @@ package service
 
 import (
 	"context"
-	"crypto/sha256"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"os"
 	"reflect"
 	database "server/db"
 	pb "server/proto"
@@ -23,7 +21,7 @@ func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb
 	if accountName == "" || password == "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid argument")
 	}
-	passwordHash := Hash(password)
+	passwordHash := auth.Hash(password)
 
 	db, err := database.GetConnection()
 	if err != nil {
@@ -31,11 +29,8 @@ func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb
 	}
 
 	var user database.User
-	err = db.Get(&user, "SELECT * FROM users WHERE account_name = ? LIMIT 1", accountName)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "internal error")
-	}
-	if reflect.DeepEqual(user, database.User{}) {
+	_ = db.Get(&user, "SELECT * FROM users WHERE account_name = ? LIMIT 1", accountName)
+	if !reflect.DeepEqual(user, database.User{}) {
 		return nil, status.Error(codes.AlreadyExists, "the user already exists")
 	}
 
@@ -84,8 +79,8 @@ func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateReq
 	if oldPassword == "" || newPassword == "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid argument")
 	}
-	oldPasswordHash := Hash(oldPassword)
-	newPasswordHash := Hash(newPassword)
+	oldPasswordHash := auth.Hash(oldPassword)
+	newPasswordHash := auth.Hash(newPassword)
 
 	db, err := database.GetConnection()
 	if err != nil {
@@ -99,9 +94,6 @@ func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateReq
 
 	var user database.User
 	if err := db.Get(&user, "SELECT * FROM users WHERE id = ? AND password_hash = ?", userId, oldPasswordHash); err != nil {
-		return nil, status.Error(codes.Internal, "internal db error")
-	}
-	if reflect.DeepEqual(user, database.User{}) {
 		return nil, status.Error(codes.InvalidArgument, "invalid old password")
 	}
 
@@ -127,20 +119,9 @@ func (s *UserServer) GetUserInfo(_ context.Context, r *pb.UserInfoRequest) (*pb.
 	return database.TransUser(user), nil
 }
 
-func Hash(pw string) []byte {
-	salt := os.Getenv("HASH_SALT")
-	h := sha256.New()
-	h.Write([]byte(salt))
-	h.Write([]byte(pw))
-	return h.Sum(nil)
-}
-
 func GetUserFromUserId(userId uint64, db *sqlx.DB) (*database.User, error) {
 	var user database.User
 	if err := db.Get(&user, "SELECT * FROM users WHERE id = ?", userId); err != nil {
-		return &database.User{}, status.Error(codes.Internal, "internal db error")
-	}
-	if reflect.DeepEqual(user, database.User{}) {
 		return &database.User{}, status.Error(codes.NotFound, "user not found")
 	}
 

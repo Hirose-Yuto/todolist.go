@@ -13,7 +13,8 @@ const CreateAccount = () => {
     const [password, setPassword] = useState("")
     const [passwordValid, setPasswordValid] = useState("")
 
-    const CreateAccount = () => {
+    const CreateAccount = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
         const client = new UserServiceClient(process.env.REACT_APP_BACKEND_URL ?? "")
         const req = new UserCreateRequest()
         req.setAccountName(accountName)
@@ -30,7 +31,7 @@ const CreateAccount = () => {
     return (<Container sx={{py: 5}}>
             <Typography variant="h4">アカウント作成</Typography>
             <Box sx={{border: 1, borderColor: grey[200], boxShadow: 1, my: 1}}>
-                <form>
+                <form onSubmit={CreateAccount}>
                     <Stack spacing={2} sx={{p: 2}}>
                         <FormControl variant="standard" required>
                             <InputLabel htmlFor="name">アカウント名</InputLabel>
@@ -54,7 +55,7 @@ const CreateAccount = () => {
                             {password !== "" && passwordValid !== "" && password !== passwordValid &&
                                 <FormHelperText error>パスワードが異なっています</FormHelperText>}
                         </FormControl>
-                        <Button onClick={CreateAccount} type="submit">アカウント作成</Button>
+                        <Button type="submit">アカウント作成</Button>
                     </Stack>
                 </form>
             </Box>

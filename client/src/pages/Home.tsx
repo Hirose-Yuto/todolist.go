@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {MessengerClient} from "../proto/MessangerServiceClientPb"
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {MessageRequest} from "../proto/messanger_pb";
@@ -6,20 +6,19 @@ import {credentials, Metadata} from "@grpc/grpc-js";
 import {LoginServiceClient} from "../proto/UserServiceClientPb";
 import {LoginRequest, UserInfo} from "../proto/user_pb";
 import {Button} from "@mui/material";
+import {UserContext} from "../App";
 
 const Home = () => {
-    const [user, setUser] = useState<UserInfo | null>(null)
+    const {user, setUser} = useContext(UserContext)
     const [a, setA] = useState("")
 
-    // useEffect(() => {
-    // }, [])
-
     const Login = () => {
-        const client = new LoginServiceClient('http://localhost:8080')
-        const req = new LoginRequest()
-        req.setAccountName("aaa")
-        req.setPassword("ssss")
-        client.login(req, null).then(r => console.log(r))
+        console.log(user)
+        // const client = new LoginServiceClient('http://localhost:8080')
+        // const req = new LoginRequest()
+        // req.setAccountName("aaa")
+        // req.setPassword("ssss")
+        // client.login(req, null).then(r => console.log(r))
     }
 
     const Message = () => {
@@ -41,7 +40,7 @@ const Home = () => {
         {
             a
         }
-        {user && user.getAccountName()}
+        {user && "name: "+user.getAccountName()}
     </>)
 }
 

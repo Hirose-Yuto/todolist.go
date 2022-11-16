@@ -11,8 +11,11 @@ import (
 )
 
 var noAuthRoutes = map[string]bool{
-	"/user.LoginService/Login":         true,
-	"/messenger.Messenger/GetMessages": true,
+	"/user.LoginService/Login":                true,
+	"/user.LoginService/LoginWithCredentials": true,
+	"/user.LoginService/Logout":               true,
+	"/user.UserService/CreateUser":            true,
+	"/messenger.Messenger/GetMessages":        true,
 	//"/messenger.Messenger/CreateMessage": true,
 }
 
@@ -54,7 +57,7 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 	token := regexResult[6 : len(regexResult)-1]
 	fmt.Printf("token: %s\n", token)
 
-	isValid, err := IsValidToken(token)
+	isValid, userId, err := IsValidToken(token)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
 	}
@@ -63,7 +66,7 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 	}
 
 	fmt.Println("authenticated!!")
-	ctx = setUserId(&ctx, 0)
+	ctx = setUserId(&ctx, userId)
 
 	return handler(ctx, req)
 }
