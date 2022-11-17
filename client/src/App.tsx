@@ -7,6 +7,7 @@ import {LoginServiceClient} from "./proto/UserServiceClientPb";
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 import Login from "./pages/guest/Login";
 import CreateAccount from "./pages/guest/CreateAccount";
+import Header from "./components/header/Header";
 
 // axios.defaults.baseURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -43,9 +44,12 @@ function App() {
                 <BrowserRouter>
                     {
                         user ?
-                            <Routes>
-                                <Route path={"/"} element={<Home/>}/>
-                            </Routes>
+                            <>
+                                <Header/>
+                                <Routes>
+                                    <Route path={"/"} element={<Home/>}/>
+                                </Routes>
+                            </>
                             : !isWaitingLogin &&
                             <Routes>
                                 <Route path={"/"} element={<Login/>}/>

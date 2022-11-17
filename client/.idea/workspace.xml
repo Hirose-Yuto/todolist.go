@@ -3,17 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="02e02287-7ceb-475f-b5e0-58872593f910" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/guest/Login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/guest/Login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/../server/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/db/entity.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/db/entity.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/../server/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/../server/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/service/auth/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/service/auth/login.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/login.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/service/auth/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/token.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +16,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="ReactComppnent" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -73,7 +66,7 @@
       <workItem from="1668419026421" duration="6186000" />
       <workItem from="1668495558200" duration="54000" />
       <workItem from="1668495704404" duration="124000" />
-      <workItem from="1668522381794" duration="18548000" />
+      <workItem from="1668522381794" duration="23281000" />
     </task>
     <servers />
   </component>
