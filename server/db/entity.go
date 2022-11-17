@@ -55,3 +55,7 @@ type Comments struct {
 	CreatedAt time.Time `db:"create_at"`
 	UpdatedAt time.Time `db:"update_at"`
 }
+
+type ExistCheck struct {
+	Exist bool `db:"exist"`
+}

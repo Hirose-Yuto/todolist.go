@@ -6,7 +6,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"reflect"
 	database "server/db"
 	pb "server/proto"
 	"server/service/auth"
@@ -28,9 +27,11 @@ func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	var user database.User
-	_ = db.Get(&user, "SELECT * FROM users WHERE account_name = ? LIMIT 1", accountName)
-	if !reflect.DeepEqual(user, database.User{}) {
+	var exist database.ExistCheck
+	if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM users WHERE account_name = ?) as exist", accountName); err != nil {
+		return nil, status.Error(codes.Internal, "internal db error")
+	}
+	if exist.Exist {
 		return nil, status.Error(codes.AlreadyExists, "the user already exists")
 	}
 
@@ -39,6 +40,7 @@ func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb
 		return nil, status.Error(codes.Internal, "err when create")
 	}
 
+	var user database.User
 	id, err := res.LastInsertId()
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
@@ -70,7 +72,7 @@ func (s *UserServer) UpdateAccountName(ctx context.Context, r *pb.AccountNameUpd
 		return nil, status.Error(codes.Internal, "internal db error")
 	}
 
-	return nil, nil
+	return &empty.Empty{}, nil
 }
 
 func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateRequest) (*empty.Empty, error) {
@@ -100,7 +102,7 @@ func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateReq
 	if _, err := db.Exec("UPDATE users SET password_hash = ? WHERE id = ?", newPasswordHash, userId); err != nil {
 		return nil, status.Error(codes.Internal, "internal db error")
 	}
-	return nil, nil
+	return &empty.Empty{}, nil
 }
 
 func (s *UserServer) GetUserInfo(_ context.Context, r *pb.UserInfoRequest) (*pb.UserInfo, error) {

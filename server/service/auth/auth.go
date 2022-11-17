@@ -11,15 +11,13 @@ import (
 )
 
 var noAuthRoutes = map[string]bool{
-	"/user.LoginService/Login":                true,
-	"/user.LoginService/LoginWithCredentials": true,
-	"/user.LoginService/Logout":               true,
-	"/user.UserService/CreateUser":            true,
-	"/messenger.Messenger/GetMessages":        true,
-	//"/messenger.Messenger/CreateMessage": true,
+	"/user.LoginService/Login":         true,
+	"/user.LoginService/Logout":        true,
+	"/user.UserService/CreateUser":     true,
+	"/messenger.Messenger/GetMessages": true,
 }
 
-var tokenRegex = regexp.MustCompile("token=[^;]+;")
+var tokenRegex = regexp.MustCompile("token=[^;]+")
 
 func Interceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -47,19 +45,18 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 	if len(vs) == 0 {
 		return nil, status.Error(codes.Unauthenticated, "no cookie")
 	}
-
 	regexResult := tokenRegex.FindString(vs[0])
 	if regexResult == "" {
-		return nil, status.Error(codes.Unauthenticated, "no cookie")
+		return nil, status.Error(codes.Unauthenticated, "no token")
 	}
 
-	// token=[^;]+;
-	token := regexResult[6 : len(regexResult)-1]
+	// token=[^;]+
+	token := regexResult[6:]
 	fmt.Printf("token: %s\n", token)
 
 	isValid, userId, err := IsValidToken(token)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, err
 	}
 	if !isValid {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", token)

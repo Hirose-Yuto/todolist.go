@@ -20,6 +20,7 @@ export const UserContext = createContext<{
 
 function App() {
     const [user, setUser] = useState<UserInfo | null>(null)
+    const [isWaitingLogin, setIsWaitingLogin] = useState(true)
 
     useEffect(() => {
         const client = new LoginServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
@@ -27,8 +28,10 @@ function App() {
         })
         client.loginWithCredentials(new Empty(), null).then((r: UserInfo) => {
             setUser(r)
+            setIsWaitingLogin(false)
             console.log(r)
-        }).catch((r) => {
+        }).catch(r => {
+            setIsWaitingLogin(false)
             console.log(r)
             console.log("auto login failed")
         })
@@ -43,7 +46,7 @@ function App() {
                             <Routes>
                                 <Route path={"/"} element={<Home/>}/>
                             </Routes>
-                            :
+                            : !isWaitingLogin &&
                             <Routes>
                                 <Route path={"/"} element={<Login/>}/>
                                 <Route path={"/create-account"} element={<CreateAccount/>}/>

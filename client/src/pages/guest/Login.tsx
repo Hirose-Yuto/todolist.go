@@ -15,13 +15,17 @@ const Login = () => {
     const Login = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        const client = new LoginServiceClient(process.env.REACT_APP_BACKEND_URL ?? "")
+        const client = new LoginServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
+            withCredentials: true
+        })
         const req = new LoginRequest()
         req.setAccountName(accountName)
         req.setPassword(password)
         client.login(req, null).then((r: UserInfo) => {
             setUser(r)
             console.log(r)
+        }).catch((r) =>{
+            console.log(typeof r)
         })
     }
 

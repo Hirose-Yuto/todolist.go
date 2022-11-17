@@ -71,9 +71,8 @@ func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty,
 		Name:     "token",
 		Value:    "",
 		MaxAge:   -1,
-		Secure:   true,
+		Secure:   os.Getenv("HTTP_SECURE") == "true",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
 	}
 	md := make(metadata.MD, 1)
 	md.Set("set-cookie", cookie.String())
@@ -82,7 +81,7 @@ func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty,
 		return nil, err
 	}
 
-	return nil, nil
+	return &empty.Empty{}, nil
 }
 
 func Hash(pw string) []byte {
