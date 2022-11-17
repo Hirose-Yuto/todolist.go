@@ -7,7 +7,7 @@ import {LoginServiceClient, UserServiceClient} from "../../proto/UserServiceClie
 import {LoginRequest, UserCreateRequest, UserInfo} from "../../proto/user_pb";
 
 const CreateAccount = () => {
-    const {user, setUser} = useContext(UserContext)
+    const {setUser} = useContext(UserContext)
 
     const [accountName, setAccountName] = useState("")
     const [password, setPassword] = useState("")

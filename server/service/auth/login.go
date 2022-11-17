@@ -71,6 +71,7 @@ func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty,
 		Name:     "token",
 		Value:    "",
 		MaxAge:   -1,
+		Path:     "/",
 		Secure:   os.Getenv("HTTP_SECURE") == "true",
 		HttpOnly: true,
 	}

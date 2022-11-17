@@ -1,10 +1,14 @@
-import React from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {Link} from "react-router-dom";
-import {AppBar, Box, Container, ThemeProvider, Toolbar} from "@mui/material";
+import {AppBar, Box, Container, ThemeProvider, Toolbar, Typography} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"
 import {Search, SearchIconWrapper, StyledInputBase, theme,} from "./SearchStyle";
+import AccountManager from "./AccountManager";
+import {UserContext} from "../../App";
 
 const Header = () => {
+    const {user} = useContext(UserContext)
+
     return (
         <ThemeProvider theme={theme}>
             <AppBar position={"static"} color={"primary"}>
@@ -24,8 +28,10 @@ const Header = () => {
                                 inputProps={{'aria-label': 'search'}}
                             />
                         </Search>
-                        {/*<AccountManager/>*/}
-                        {/*<AccountInfoBox/>*/}
+                        <AccountManager/>
+                        <Box sx={{mx: 2}}>
+                            <Typography>{user?.getAccountName()}</Typography>
+                        </Box>
                     </Toolbar>
                 </Container>
             </AppBar>

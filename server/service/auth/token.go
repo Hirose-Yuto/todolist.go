@@ -26,6 +26,7 @@ func SetLatestTokenToHeader(userId uint64, ctx context.Context) error {
 		Name:     "token",
 		Value:    (*token).Token,
 		Expires:  (*token).ExpiredAt,
+		Path:     "/",
 		Secure:   os.Getenv("HTTP_SECURE") == "true",
 		HttpOnly: true,
 	}

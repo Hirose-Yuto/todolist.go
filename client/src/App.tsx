@@ -8,8 +8,7 @@ import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 import Login from "./pages/guest/Login";
 import CreateAccount from "./pages/guest/CreateAccount";
 import Header from "./components/header/Header";
-
-// axios.defaults.baseURL = process.env.REACT_APP_BACKEND_URL;
+import Account from "./pages/menu/Account";
 
 export const UserContext = createContext<{
     user: UserInfo | null,
@@ -47,13 +46,14 @@ function App() {
                             <>
                                 <Header/>
                                 <Routes>
-                                    <Route path={"/"} element={<Home/>}/>
+                                    <Route path={"/menu/account"} element={<Account/>}/>
+                                    <Route path={"*"} element={<Home/>}/>
                                 </Routes>
                             </>
                             : !isWaitingLogin &&
                             <Routes>
-                                <Route path={"/"} element={<Login/>}/>
                                 <Route path={"/create-account"} element={<CreateAccount/>}/>
+                                <Route path={"*"} element={<Login/>}/>
                             </Routes>
                     }
                 </BrowserRouter>

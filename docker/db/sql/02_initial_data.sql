@@ -1,4 +1,4 @@
-# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (1, 'web', '___');
+# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (1, 'web', '');
 # INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (2,
 #                                                         'pro', '___');
 #
