@@ -8,6 +8,7 @@ package user;
 
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserInfo);
+  rpc DeleteUser (DeleteUserRequest) returns (google.protobuf.Empty);
   rpc UpdateAccountName (AccountNameUpdateRequest) returns (google.protobuf.Empty);
   rpc UpdatePassword (PasswordUpdateRequest) returns (google.protobuf.Empty);
   rpc GetUserInfo (UserInfoRequest) returns (UserInfo);
@@ -24,6 +25,9 @@ message UserCreateRequest {
   string password = 2;
 }
 
+message DeleteUserRequest {
+  string password = 1;
+}
 
 message UserInfoRequest {
   uint64 user_id = 1;

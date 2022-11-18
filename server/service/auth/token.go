@@ -163,3 +163,13 @@ func createToken(userId uint64, uuid string) (string, error) {
 	}
 	return token, nil
 }
+
+func DeleteUserTokenUuids(userId uint64, db *sqlx.DB) error {
+	_, err := db.Exec("DELETE FROM user_token_uuids WHERE user_id = ?", userId)
+	if err != nil {
+		fmt.Println(err)
+		return status.Errorf(codes.Internal, "internal db error")
+	}
+
+	return nil
+}
