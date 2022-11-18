@@ -11,9 +11,9 @@ type User struct {
 	PasswordHash []byte `db:"password_hash"`
 }
 
-type UserToken struct {
+type UserTokenUuid struct {
 	ID        uint64    `db:"id"`
-	Token     string    `db:"token"`
+	UUID      string    `db:"uuid"`
 	UserId    uint64    `db:"user_id"`
 	ExpiredAt time.Time `db:"expired_at"`
 }

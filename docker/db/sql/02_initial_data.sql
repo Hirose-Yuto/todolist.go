@@ -1,6 +1,5 @@
-# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (1, 'web', '');
-# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (2,
-#                                                         'pro', '___');
+# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (1, 'web', '___'); # ログイン不可
+# INSERT INTO `users` (`id`, `account_name`, `password_hash`) VALUES (2, 'pro', '___');# ログイン不可
 #
 # INSERT INTO `tasks` (`id`, `title`) VALUES (1, 'sample-task-01');
 # INSERT INTO `tasks` (`id`, `title`) VALUES (2, 'sample-task-02');

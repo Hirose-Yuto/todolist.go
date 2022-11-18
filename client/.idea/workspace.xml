@@ -3,11 +3,14 @@
   <component name="ChangeListManager">
     <list default="true" id="02e02287-7ceb-475f-b5e0-58872593f910" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/header/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/header/Header.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/guest/CreateAccount.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/guest/CreateAccount.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/guest/Login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/guest/Login.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker/db/sql/01_create_tables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/db/sql/01_create_tables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker/db/sql/02_initial_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/db/sql/02_initial_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/db/entity.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/db/entity.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/service/auth/login.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/login.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/service/auth/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/auth/token.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +71,7 @@
       <workItem from="1668419026421" duration="6186000" />
       <workItem from="1668495558200" duration="54000" />
       <workItem from="1668495704404" duration="124000" />
-      <workItem from="1668522381794" duration="32119000" />
+      <workItem from="1668522381794" duration="32765000" />
     </task>
     <servers />
   </component>

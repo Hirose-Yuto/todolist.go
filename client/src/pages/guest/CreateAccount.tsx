@@ -15,7 +15,9 @@ const CreateAccount = () => {
 
     const CreateAccount = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const client = new UserServiceClient(process.env.REACT_APP_BACKEND_URL ?? "")
+        const client = new UserServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
+            withCredentials: true
+        })
         const req = new UserCreateRequest()
         req.setAccountName(accountName)
         req.setPassword(password)

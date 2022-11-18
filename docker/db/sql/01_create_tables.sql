@@ -13,11 +13,10 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `user_tokens` (
+CREATE TABLE `user_token_uuids` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `token` longtext,
+    `uuid` longtext,
     `user_id` bigint(20) NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `expired_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id`)

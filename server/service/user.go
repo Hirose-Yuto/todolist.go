@@ -14,7 +14,7 @@ import (
 type UserServer struct {
 }
 
-func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb.UserInfo, error) {
+func (s *UserServer) CreateUser(ctx context.Context, r *pb.UserCreateRequest) (*pb.UserInfo, error) {
 	accountName := r.GetAccountName()
 	password := r.GetPassword()
 	if accountName == "" || password == "" {
@@ -47,6 +47,10 @@ func (s *UserServer) CreateUser(_ context.Context, r *pb.UserCreateRequest) (*pb
 	}
 	if err = db.Get(&user, "SELECT * FROM users WHERE id = ?", id); err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	if err := auth.SetLatestTokenToHeader(user.ID, ctx); err != nil {
+		return nil, err
 	}
 
 	return database.TransUser(&user), nil

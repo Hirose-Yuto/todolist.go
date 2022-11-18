@@ -74,6 +74,7 @@ func (s *LoginServer) Logout(ctx context.Context, _ *empty.Empty) (*empty.Empty,
 		Path:     "/",
 		Secure:   os.Getenv("HTTP_SECURE") == "true",
 		HttpOnly: true,
+		SameSite: http.SameSiteDefaultMode,
 	}
 	md := make(metadata.MD, 1)
 	md.Set("set-cookie", cookie.String())

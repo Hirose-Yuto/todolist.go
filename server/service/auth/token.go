@@ -17,15 +17,16 @@ import (
 )
 
 func SetLatestTokenToHeader(userId uint64, ctx context.Context) error {
-	token, err := UpdateToken(userId)
+	fmt.Println("aaa")
+	token, expiredAt, err := UpdateToken(userId)
 	if err != nil {
 		return err
 	}
 
 	cookie := http.Cookie{
 		Name:     "token",
-		Value:    (*token).Token,
-		Expires:  (*token).ExpiredAt,
+		Value:    token,
+		Expires:  expiredAt,
 		Path:     "/",
 		Secure:   os.Getenv("HTTP_SECURE") == "true",
 		HttpOnly: true,
@@ -39,90 +40,87 @@ func SetLatestTokenToHeader(userId uint64, ctx context.Context) error {
 	return nil
 }
 
-func UpdateToken(userId uint64) (*database.UserToken, error) {
+func UpdateToken(userId uint64) (string, time.Time, error) {
 	db, err := database.GetConnection()
 	if err != nil {
-		return &database.UserToken{}, status.Error(codes.Internal, "internal error")
+		return "", time.Now(), status.Error(codes.Internal, "internal error")
 	}
 
-	var token database.UserToken
-	if err = db.Get(&token, "SELECT * from user_tokens WHERE user_id = ?", userId); err != nil {
-		token, err = createDbToken(userId, db)
+	var token string
+	var expiredAt time.Time
+
+	var tokenUuid database.UserTokenUuid
+	if err = db.Get(&tokenUuid, "SELECT * from user_token_uuids WHERE user_id = ?", userId); err != nil {
+		token, expiredAt, err = createDbToken(userId, db)
 		if err != nil {
-			return &database.UserToken{}, err
+			return "", time.Now(), err
 		}
-	}
-
-	if time.Now().After(token.ExpiredAt) {
-		token, err = updateDbToken(token, db)
+	} else if time.Now().After(tokenUuid.ExpiredAt) {
+		token, expiredAt, err = updateDbToken(tokenUuid, db)
 		if err != nil {
-			return &database.UserToken{}, err
+			return "", time.Now(), err
 		}
+	} else {
+		token, err = createToken(userId, tokenUuid.UUID)
+		if err != nil {
+			return "", time.Now(), err
+		}
+		expiredAt = tokenUuid.ExpiredAt
 	}
 
-	return &token, nil
+	return token, expiredAt, nil
 }
 
-func createDbToken(userId uint64, db *sqlx.DB) (database.UserToken, error) {
-	token, tokenUuid, err := generateNewToken(userId, db)
+func createDbToken(userId uint64, db *sqlx.DB) (string, time.Time, error) {
+	newToken, tokenUuid, expiredAt, err := generateNewToken(userId, db)
 	if err != nil {
-		return database.UserToken{}, err
-	}
-	res, err := db.Exec("INSERT INTO user_tokens (token, user_id, expired_at) VALUES (?, ?, ?)",
-		tokenUuid, token.UserId, token.ExpiredAt)
-	if err != nil {
-		return database.UserToken{}, status.Error(codes.Internal, "internal error")
+		return "", time.Now(), err
 	}
 
-	ID, err := res.LastInsertId()
+	_, err = db.Exec("INSERT INTO user_token_uuids (uuid, user_id, expired_at) VALUES (?, ?, ?)",
+		tokenUuid, userId, expiredAt)
 	if err != nil {
-		return database.UserToken{}, status.Error(codes.Internal, "internal error")
+		return "", time.Now(), status.Error(codes.Internal, "internal error")
 	}
 
-	token.ID = uint64(ID)
+	if err != nil {
+		return "", time.Now(), status.Error(codes.Internal, "internal error")
+	}
 
-	return token, nil
+	return newToken, expiredAt, nil
 }
 
-func updateDbToken(token database.UserToken, db *sqlx.DB) (database.UserToken, error) {
-	newToken, tokenUuid, err := generateNewToken(token.UserId, db)
+func updateDbToken(token database.UserTokenUuid, db *sqlx.DB) (string, time.Time, error) {
+	newToken, tokenUuid, expiredAt, err := generateNewToken(token.UserId, db)
 	if err != nil {
-		return database.UserToken{}, err
+		return "", time.Now(), err
 	}
-	if _, err = db.Exec("UPDATE user_tokens SET token = ?, expired_at = ? WHERE id = ?",
-		tokenUuid, newToken.ExpiredAt, token.ID); err != nil {
-		return database.UserToken{}, status.Error(codes.Internal, "internal error")
+
+	if _, err = db.Exec("UPDATE user_token_uuids SET uuid = ?, expired_at = ? WHERE id = ?",
+		tokenUuid, expiredAt, token.ID); err != nil {
+		return "", time.Now(), status.Error(codes.Internal, "internal error")
 	}
-	newToken.ID = token.ID
-	return database.UserToken{}, nil
+	return newToken, expiredAt, nil
 }
 
-func generateNewToken(userId uint64, db *sqlx.DB) (database.UserToken, string, error) {
+func generateNewToken(userId uint64, db *sqlx.DB) (string, string, time.Time, error) {
 	var newUuid string
 	for {
 		newUuid = uuid.New().String()
 		var exist database.ExistCheck
-		if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM user_tokens WHERE token = ?) as exist", newUuid); err != nil {
-			return database.UserToken{}, "", status.Error(codes.Internal, "internal db error")
+		if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM user_token_uuids WHERE uuid = ?) as exist", newUuid); err != nil {
+			return "", "", time.Now(), status.Error(codes.Internal, "internal db error")
 		}
 		if !exist.Exist {
 			break
 		}
 	}
-	claims := jwt.MapClaims{
-		"user_id": userId,
-		"uuid":    newUuid,
-	}
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	token, err := createToken(userId, newUuid)
 	if err != nil {
-		return database.UserToken{}, "", status.Error(codes.Internal, "internal sign error")
+		return "", "", time.Now(), err
 	}
 
-	return database.UserToken{
-		Token:     token,
-		ExpiredAt: time.Now().Add(24 * time.Hour),
-		UserId:    userId,
-	}, newUuid, nil
+	return token, newUuid, time.Now().Add(24 * time.Hour), nil
 }
 
 func IsValidToken(tokenString string) (bool, uint64, error) {
@@ -140,8 +138,9 @@ func IsValidToken(tokenString string) (bool, uint64, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userId := uint64(claims["user_id"].(float64))
 		tokenUuid := claims["uuid"].(string)
+		fmt.Println(tokenUuid)
 		var exist database.ExistCheck
-		if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM user_tokens WHERE user_id = ? AND token = ?) as exist", userId, tokenUuid); err != nil {
+		if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM user_token_uuids WHERE user_id = ? AND uuid = ?) as exist", userId, tokenUuid); err != nil {
 			return false, 0, status.Error(codes.Internal, "internal db error")
 		}
 		if !exist.Exist {
@@ -151,4 +150,16 @@ func IsValidToken(tokenString string) (bool, uint64, error) {
 	} else {
 		return false, 0, status.Error(codes.InvalidArgument, "invalid token")
 	}
+}
+
+func createToken(userId uint64, uuid string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userId,
+		"uuid":    uuid,
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+	if err != nil {
+		return "", status.Error(codes.Internal, "internal token error")
+	}
+	return token, nil
 }

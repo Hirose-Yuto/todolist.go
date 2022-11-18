@@ -25,7 +25,7 @@ const Login = () => {
             setUser(r)
             console.log(r)
         }).catch((r) =>{
-            console.log(typeof r)
+            console.log(r)
         })
     }
 
