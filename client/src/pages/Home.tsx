@@ -1,8 +1,5 @@
 import React, {useContext, useEffect, useState} from "react"
-import {MessengerClient} from "../proto/MessangerServiceClientPb"
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
-import {MessageRequest} from "../proto/messanger_pb";
-import {credentials, Metadata} from "@grpc/grpc-js";
 import {LoginServiceClient} from "../proto/UserServiceClientPb";
 import {LoginRequest, UserInfo} from "../proto/user_pb";
 import {Button} from "@mui/material";

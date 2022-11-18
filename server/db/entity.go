@@ -21,6 +21,7 @@ type UserTokenUuid struct {
 type Task struct {
 	ID        uint64    `db:"id"`
 	Title     string    `db:"title"`
+	Memo      string    `db:"memo"`
 	isDone    bool      `db:"is_done"`
 	Priority  int       `db:"priority"`
 	Deadline  time.Time `db:"created_at"`
@@ -35,10 +36,8 @@ type UserHasTask struct {
 }
 
 type Tag struct {
-	ID          uint64    `db:"id"`
-	Description string    `db:"description"`
-	CreatedAt   time.Time `db:"create_at"`
-	UpdatedAt   time.Time `db:"update_at"`
+	ID          uint64 `db:"id"`
+	Description string `db:"description"`
 }
 
 type TaskHasTag struct {

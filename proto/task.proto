@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./server/proto";
+
+package user;
+
+service TaskService {
+  rpc GetTask(GetTaskRequest) returns (Task);
+  rpc CreateTask (CreateTaskRequest) returns (Task);
+  rpc UpdateTask (UpdateTaskRequest) returns (google.protobuf.Empty);
+  rpc DeleteTask (DeleteTaskRequest) returns (google.protobuf.Empty);
+  rpc GetAllTasks (google.protobuf.Empty) returns (TaskList);
+}
+
+service TagService {
+  rpc CreateTag (CreateTagRequest) returns (Tag);
+  rpc UpdateTag (UpdateTagRequest) returns (google.protobuf.Empty);
+  rpc DeleteTag (DeleteTagRequest) returns (google.protobuf.Empty);
+  rpc SetTagToTask (TagToTaskRequest) returns (google.protobuf.Empty);
+  rpc UnSetTagToTask (TagToTaskRequest) returns (google.protobuf.Empty);
+}
+
+message Task {
+  uint64 id = 1;
+  string title = 2;
+  string memo = 3;
+  bool is_done = 4;
+  int64 priority = 5;
+  google.protobuf.Timestamp deadline = 6;
+  google.protobuf.Timestamp crated_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  repeated Tag tags = 9;
+}
+
+message TaskList {
+  repeated Task tasks = 1;
+}
+
+message GetTaskRequest {
+  uint64 task_id = 1;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  string memo = 2;
+  bool is_done = 3;
+  int64 priority = 4;
+  google.protobuf.Timestamp deadline = 5;
+}
+
+message UpdateTaskRequest {
+  uint64 task_id = 1;
+  string title = 2;
+  string memo = 3;
+  bool is_done = 4;
+  int64 priority = 5;
+  google.protobuf.Timestamp deadline = 6;
+}
+
+message DeleteTaskRequest {
+  uint64 task_id = 1;
+}
+
+message CreateTagRequest {
+  string description = 1;
+}
+
+message UpdateTagRequest {
+  uint64 tag_id = 1;
+  string description = 2;
+}
+
+message Tag {
+  uint64 id = 1;
+  string description = 2;
+}
+
+message DeleteTagRequest {
+  uint64 tag_id = 1;
+}
+
+message TagToTaskRequest {
+  uint64 task_id = 1;
+  uint64 tag_id = 2;
+}
