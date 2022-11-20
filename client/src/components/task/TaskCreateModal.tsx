@@ -1,9 +1,10 @@
-import React, {useState} from "react"
+import React, {useContext, useState} from "react"
 import {Button, FormControl, FormHelperText, Input, InputLabel, Modal, Stack, Typography} from "@mui/material";
 import {modalStyle} from "../../Style";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
 import {CreateTaskRequest, Task} from "../../proto/task_pb";
 import {Timestamp} from "google-protobuf/google/protobuf/timestamp_pb";
+import {SnackBarContext} from "../../App";
 
 type Props = {
     open: boolean,
@@ -12,6 +13,8 @@ type Props = {
 }
 
 const TaskCreateModal: React.FC<Props> = (props: Props) => {
+    const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
+
     const [title, setTitle] = useState("")
     const [memo, setMemo] = useState("")
     const [priority, setPriority] = useState(5)
@@ -29,12 +32,14 @@ const TaskCreateModal: React.FC<Props> = (props: Props) => {
         req.setIsDone(false)
         req.setDeadline(deadline ? Timestamp.fromDate(deadline) : undefined)
         client.createTask(req, null).then((r: Task) => {
+            setSuccessSnackBar("タスク作成に成功しました")
             console.log(r)
+
             props.appendRows(r)
             props.onClose()
         }).catch(r => {
+            setWarningSnackBar("タスク作成に失敗しました")
             console.log(r)
-            props.onClose()
         })
         setTitle("")
         setMemo("")

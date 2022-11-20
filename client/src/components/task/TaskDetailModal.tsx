@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {
     Button,
     FormControl,
@@ -11,11 +11,12 @@ import {
     Typography
 } from "@mui/material";
 import {modalStyle} from "../../Style";
-import {DeleteTaskRequest, Task, UpdateTaskRequest} from "../../proto/task_pb";
+import {DeleteTaskRequest, UpdateTaskRequest} from "../../proto/task_pb";
 import {TsTask} from "../../entity/task";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
 import {Timestamp} from "google-protobuf/google/protobuf/timestamp_pb";
 import Grid2 from "@mui/material/Unstable_Grid2";
+import {SnackBarContext} from "../../App";
 
 type Props = {
     open: boolean,
@@ -26,6 +27,8 @@ type Props = {
 }
 
 const TaskDetailModal: React.FC<Props> = (props: Props) => {
+    const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
+
     const [title, setTitle] = useState("")
     const [memo, setMemo] = useState("")
     const [isDone, setIsDone] = useState(false)
@@ -53,7 +56,6 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
         req.setIsDone(isDone)
         req.setDeadline(deadline ? Timestamp.fromDate(deadline) : undefined)
         client.updateTask(req, null).then(() => {
-            console.log("task updated")
             props.updateTask({
                 id: props.task?.id ?? 0,
                 title: title,
@@ -64,10 +66,13 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
                 created_at: props.task?.created_at ?? new Date(),
                 tags: props.task?.tags ?? []
             })
+            setSuccessSnackBar("タスクの更新に成功しました")
+            console.log("task updated")
+
             props.onClose()
         }).catch(r => {
+            setWarningSnackBar("タスクの更新に失敗しました")
             console.log(r)
-            props.onClose()
         })
     }
 
@@ -78,12 +83,13 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
         const req = new DeleteTaskRequest()
         req.setTaskId(props.task?.id ?? 0)
         client.deleteTask(req, null).then(() => {
+            setSuccessSnackBar("タスクの削除に成功しました")
             console.log("task deleted")
             props.removeTask(props.task?.id ?? 0)
             props.onClose()
         }).catch(r => {
+            setWarningSnackBar("タスクの削除に失敗しました")
             console.log(r)
-            props.onClose()
         })
     }
 

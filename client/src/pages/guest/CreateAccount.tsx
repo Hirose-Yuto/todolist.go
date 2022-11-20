@@ -2,11 +2,12 @@ import React, {useContext, useState} from "react"
 import {Box, Button, Container, FormControl, FormHelperText, Input, InputLabel, Stack, Typography} from "@mui/material";
 import {grey} from "@mui/material/colors";
 import {Link} from "react-router-dom";
-import {UserContext} from "../../App";
-import {LoginServiceClient, UserServiceClient} from "../../proto/UserServiceClientPb";
-import {LoginRequest, UserCreateRequest, UserInfo} from "../../proto/user_pb";
+import {SnackBarContext, UserContext} from "../../App";
+import {UserServiceClient} from "../../proto/UserServiceClientPb";
+import {UserCreateRequest, UserInfo} from "../../proto/user_pb";
 
 const CreateAccount = () => {
+    const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
     const {setUser} = useContext(UserContext)
 
     const [accountName, setAccountName] = useState("")
@@ -21,12 +22,13 @@ const CreateAccount = () => {
         const req = new UserCreateRequest()
         req.setAccountName(accountName)
         req.setPassword(password)
-        client.createUser(req, null)
-            .then((r: UserInfo) => {
-                setUser(r)
-                console.log(r)
-            }).catch((r) => {
-                console.log(r)
+        client.createUser(req, null).then((r: UserInfo) => {
+            setUser(r)
+            setSuccessSnackBar(`ようこそ ${r.getAccountName()} さん`)
+            console.log(r)
+        }).catch((r) => {
+            setWarningSnackBar("アカウント作成に失敗しました")
+            console.log(r)
         })
     }
 

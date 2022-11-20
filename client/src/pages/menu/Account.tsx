@@ -11,13 +11,13 @@ import {
     Stack, Typography
 } from "@mui/material";
 import {grey} from "@mui/material/colors";
-import {UserContext} from "../../App";
+import {SnackBarContext, UserContext} from "../../App";
 import {modalStyle} from "../../Style";
 import {UserServiceClient} from "../../proto/UserServiceClientPb";
 import {AccountNameUpdateRequest, DeleteUserRequest, PasswordUpdateRequest} from "../../proto/user_pb";
-import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 
 const Account = () => {
+    const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
     const {user, setUser} = useContext(UserContext)
     const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
@@ -42,9 +42,12 @@ const Account = () => {
         client.updateAccountName(req, null).then(() => {
             user.setAccountName(e.target.value)
             setUser(user)
+
+            setSuccessSnackBar(`アカウント名が「${e.target.value}」に更新されました`)
             console.log("account name updated")
             window.location.reload()
         }).catch((r) => {
+            setWarningSnackBar(`アカウント名の更新に失敗しました`)
             console.log(r)
         })
     }
@@ -58,9 +61,13 @@ const Account = () => {
         req.setOldPassword(oldPassword)
         req.setNewPassword(newPassword)
         client.updatePassword(req, null).then(() => {
+            setSuccessSnackBar(`パスワードを更新しました`)
             console.log("password updated")
+            handleChangePasswordClose()
         }).catch((r) => {
+            setWarningSnackBar(`パスワードの更新に失敗しました`)
             console.log(r)
+            handleChangePasswordClose()
         })
     }
 
@@ -77,10 +84,11 @@ const Account = () => {
             console.log("account deleted")
             window.location.reload()
         }).catch(() => {
+            setWarningSnackBar(`アカウント削除に失敗しました`)
             console.log("account deletion failed")
+            handleDeleteAccountClose()
         })
     }
-
 
     return (
         <Container sx={{py: 5}}>

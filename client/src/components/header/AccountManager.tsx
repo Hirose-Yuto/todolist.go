@@ -1,6 +1,6 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext} from "react";
 import {Avatar, Box, IconButton, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
-import {UserContext} from "../../App";
+import {SnackBarContext, UserContext} from "../../App";
 import {useNavigate} from "react-router-dom";
 import {LoginServiceClient} from "../../proto/UserServiceClientPb";
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
@@ -9,20 +9,12 @@ type settingFunctionArray = {
     [index: string]: () => void
 }
 
-
 const AccountManager = () => {
+    const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
+
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const navigate = useNavigate()
     const {user, setUser} = useContext(UserContext)
-
-    useEffect(() => {
-
-    }, [])
-
-    const onLoginFailure = () => {
-        // モーダルなどでエラーメッセージを出したい
-        window.alert("ログインに失敗しました。")
-    }
 
     const logout = () => {
         const client = new LoginServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
@@ -30,8 +22,11 @@ const AccountManager = () => {
         })
         client.logout(new Empty(), null).then(() => {
             setUser(null)
+
+            setSuccessSnackBar("ログアウトしました")
             console.log("logout")
         }).catch((r) => {
+            setWarningSnackBar("ログアウトに失敗しました")
             console.log(r)
         })
     }

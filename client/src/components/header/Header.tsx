@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react"
+import React, {useContext} from "react"
 import {Link} from "react-router-dom";
 import {AppBar, Box, Container, ThemeProvider, Toolbar, Typography} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"
@@ -24,7 +24,7 @@ const Header = () => {
                                 <SearchIcon/>
                             </SearchIconWrapper>
                             <StyledInputBase
-                                placeholder="Search…"
+                                placeholder="タスクを検索"
                                 inputProps={{'aria-label': 'search'}}
                             />
                         </Search>
