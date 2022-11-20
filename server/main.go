@@ -13,6 +13,7 @@ import (
 	pb "server/proto"
 	"server/service"
 	"server/service/auth"
+	"server/service/task"
 )
 
 const port = 9090
@@ -42,6 +43,7 @@ func main() {
 
 	pb.RegisterUserServiceServer(s, &service.UserServer{})
 	pb.RegisterLoginServiceServer(s, &auth.LoginServer{})
+	pb.RegisterTaskServiceServer(s, &task.TaskServer{})
 
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {

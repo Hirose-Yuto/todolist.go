@@ -23,7 +23,7 @@ type Task struct {
 	Title     string    `db:"title"`
 	Memo      string    `db:"memo"`
 	isDone    bool      `db:"is_done"`
-	Priority  int       `db:"priority"`
+	Priority  int32     `db:"priority"`
 	Deadline  time.Time `db:"created_at"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"created_at"`

@@ -13,6 +13,8 @@ service TaskService {
   rpc UpdateTask (UpdateTaskRequest) returns (google.protobuf.Empty);
   rpc DeleteTask (DeleteTaskRequest) returns (google.protobuf.Empty);
   rpc GetAllTasks (google.protobuf.Empty) returns (TaskList);
+
+  rpc AssignTask (AssignTaskRequest) returns (google.protobuf.Empty);
 }
 
 service TagService {
@@ -28,7 +30,7 @@ message Task {
   string title = 2;
   string memo = 3;
   bool is_done = 4;
-  int64 priority = 5;
+  int32 priority = 5;
   google.protobuf.Timestamp deadline = 6;
   google.protobuf.Timestamp crated_at = 7;
   google.protobuf.Timestamp updated_at = 8;
@@ -47,7 +49,7 @@ message CreateTaskRequest {
   string title = 1;
   string memo = 2;
   bool is_done = 3;
-  int64 priority = 4;
+  int32 priority = 4;
   google.protobuf.Timestamp deadline = 5;
 }
 
@@ -56,12 +58,17 @@ message UpdateTaskRequest {
   string title = 2;
   string memo = 3;
   bool is_done = 4;
-  int64 priority = 5;
+  int32 priority = 5;
   google.protobuf.Timestamp deadline = 6;
 }
 
 message DeleteTaskRequest {
   uint64 task_id = 1;
+}
+
+message AssignTaskRequest {
+  uint64 user_id = 1;
+  uint64 task_id = 2;
 }
 
 message CreateTagRequest {

@@ -3,12 +3,12 @@ package auth
 import (
 	"context"
 	"crypto/sha256"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"log"
 	"net/http"
 	"os"
 	database "server/db"
@@ -33,7 +33,7 @@ func (s *LoginServer) Login(ctx context.Context, r *pb.LoginRequest) (*pb.UserIn
 
 	var user database.User
 	if err := db.Get(&user, "SELECT * FROM users WHERE account_name = ? AND password_hash = ?", accountName, passwordHash); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.InvalidArgument, "invalid account name or password")
 	}
 

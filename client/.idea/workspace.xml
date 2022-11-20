@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="02e02287-7ceb-475f-b5e0-58872593f910" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../proto/user.proto" beforeDir="false" afterPath="$PROJECT_DIR$/../proto/user.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/service/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/../server/service/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +64,7 @@
       <workItem from="1668419026421" duration="6186000" />
       <workItem from="1668495558200" duration="54000" />
       <workItem from="1668495704404" duration="124000" />
-      <workItem from="1668522381794" duration="33026000" />
+      <workItem from="1668522381794" duration="33139000" />
     </task>
     <servers />
   </component>

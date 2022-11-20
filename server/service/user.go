@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log"
 	database "server/db"
 	pb "server/proto"
 	"server/service/auth"
@@ -25,13 +25,13 @@ func (s *UserServer) CreateUser(ctx context.Context, r *pb.UserCreateRequest) (*
 
 	db, err := database.GetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	var exist database.ExistCheck
 	if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM users WHERE account_name = ?) as exist", accountName); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal db error")
 	}
 	if exist.Exist {
@@ -40,18 +40,18 @@ func (s *UserServer) CreateUser(ctx context.Context, r *pb.UserCreateRequest) (*
 
 	res, err := db.Exec("INSERT INTO users (account_name, password_hash) VALUES (?, ?) ", accountName, passwordHash)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "error when create")
 	}
 
 	var user database.User
 	id, err := res.LastInsertId()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 	if err = db.Get(&user, "SELECT * FROM users WHERE id = ?", id); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -70,18 +70,18 @@ func (s *UserServer) UpdateAccountName(ctx context.Context, r *pb.AccountNameUpd
 
 	db, err := database.GetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	userId, err := auth.GetUserId(&ctx)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	if _, err := db.Exec("UPDATE users SET account_name = ? WHERE id = ?", accountName, userId); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal db error")
 	}
 
@@ -99,13 +99,13 @@ func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateReq
 
 	db, err := database.GetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	userId, err := auth.GetUserId(&ctx)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -115,7 +115,7 @@ func (s *UserServer) UpdatePassword(ctx context.Context, r *pb.PasswordUpdateReq
 	}
 
 	if _, err := db.Exec("UPDATE users SET password_hash = ? WHERE id = ?", newPasswordHash, userId); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal db error")
 	}
 	return &empty.Empty{}, nil
@@ -126,7 +126,7 @@ func (s *UserServer) GetUserInfo(_ context.Context, r *pb.UserInfoRequest) (*pb.
 
 	db, err := database.GetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -141,7 +141,7 @@ func (s *UserServer) GetUserInfo(_ context.Context, r *pb.UserInfoRequest) (*pb.
 func (s *UserServer) DeleteUser(ctx context.Context, request *pb.DeleteUserRequest) (*empty.Empty, error) {
 	db, err := database.GetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -158,7 +158,7 @@ func (s *UserServer) DeleteUser(ctx context.Context, request *pb.DeleteUserReque
 
 	_, err = db.Exec("DELETE FROM users WHERE id = ?", userId)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
 	}
 
