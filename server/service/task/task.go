@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"database/sql"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
@@ -10,6 +11,7 @@ import (
 	database "server/db"
 	pb "server/proto"
 	"server/service/auth"
+	"time"
 )
 
 type TaskServer struct {
@@ -50,9 +52,14 @@ func (t TaskServer) CreateTask(ctx context.Context, r *pb.CreateTaskRequest) (*p
 		log.Println(err)
 		return &pb.Task{}, status.Error(codes.Internal, "internal error")
 	}
-
-	res, err := db.Exec("INSERT INTO tasks (title, memo, deadline, is_done, priority) VALUES (?, ?, ?, ?, ?)",
-		title, memo, deadline, isDone, priority)
+	var res sql.Result
+	if deadline.Unix() != 0 {
+		res, err = db.Exec("INSERT INTO tasks (title, memo, deadline, is_done, priority) VALUES (?, ?, ?, ?, ?)",
+			title, memo, deadline, isDone, priority)
+	} else {
+		res, err = db.Exec("INSERT INTO tasks (title, memo, is_done, priority) VALUES (?, ?, ?, ?)",
+			title, memo, isDone, priority)
+	}
 	if err != nil {
 		log.Println(err)
 		return &pb.Task{}, status.Error(codes.Internal, "internal db error")
@@ -106,8 +113,13 @@ func (t TaskServer) UpdateTask(ctx context.Context, r *pb.UpdateTaskRequest) (*e
 		return &empty.Empty{}, status.Error(codes.InvalidArgument, "title is required")
 	}
 
-	_, err = db.Exec("UPDATE tasks SET title = ?, memo = ?, deadline = ?, is_done = ?, priority = ? WHERE id = ?",
-		title, memo, deadline, isDone, priority, taskId)
+	if deadline.Unix() != 0 {
+		_, err = db.Exec("UPDATE tasks SET title = ?, memo = ?, deadline = ?, is_done = ?, priority = ?, updated_at = ? WHERE id = ?",
+			title, memo, deadline, isDone, priority, time.Now(), taskId)
+	} else {
+		_, err = db.Exec("UPDATE tasks SET title = ?, memo = ?, is_done = ?, priority = ?, updated_at = ? WHERE id = ?",
+			title, memo, isDone, priority, time.Now(), taskId)
+	}
 	if err != nil {
 		log.Println(err)
 		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
@@ -229,7 +241,7 @@ func getTaskAndTags(taskId uint64, db *sqlx.DB) (*database.Task, *[]database.Tag
 	}
 
 	var tags []database.Tag
-	if err := db.Get(&task, `
+	if err := db.Select(&tags, `
 SELECT tags.id, description
 FROM tags        
 	INNER JOIN tasks_have_tags tht on tags.id = tht.tag_id WHERE tht.task_id = ?;`, taskId); err != nil {

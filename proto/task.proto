@@ -5,7 +5,7 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "./server/proto";
 
-package user;
+package task;
 
 service TaskService {
   rpc GetTask(GetTaskRequest) returns (Task);

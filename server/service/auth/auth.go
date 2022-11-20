@@ -52,7 +52,6 @@ func AuthFunc(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 
 	// token=[^;]+
 	token := regexResult[6:]
-	fmt.Printf("token: %s\n", token)
 
 	isValid, userId, err := IsValidToken(token)
 	if err != nil {

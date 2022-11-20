@@ -22,11 +22,11 @@ type Task struct {
 	ID        uint64    `db:"id"`
 	Title     string    `db:"title"`
 	Memo      string    `db:"memo"`
-	isDone    bool      `db:"is_done"`
+	IsDone    bool      `db:"is_done"`
 	Priority  int32     `db:"priority"`
-	Deadline  time.Time `db:"created_at"`
+	Deadline  time.Time `db:"deadline"`
 	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type UserHasTask struct {

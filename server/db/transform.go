@@ -14,7 +14,7 @@ func TransTask(task *Task, tags *[]Tag) *pb.Task {
 		Id:        task.ID,
 		Title:     task.Title,
 		Memo:      task.Memo,
-		IsDone:    task.isDone,
+		IsDone:    task.IsDone,
 		Priority:  task.Priority,
 		Deadline:  ts.New(task.Deadline),
 		CratedAt:  ts.New(task.CreatedAt),

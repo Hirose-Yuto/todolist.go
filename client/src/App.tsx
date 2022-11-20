@@ -9,6 +9,7 @@ import Login from "./pages/guest/Login";
 import CreateAccount from "./pages/guest/CreateAccount";
 import Header from "./components/header/Header";
 import Account from "./pages/menu/Account";
+import TaskList from "./pages/task/TaskList";
 
 export const UserContext = createContext<{
     user: UserInfo | null,
@@ -47,6 +48,7 @@ function App() {
                                 <Header/>
                                 <Routes>
                                     <Route path={"/menu/account"} element={<Account/>}/>
+                                    <Route path={"/task"} element={<TaskList/>}/>
                                     <Route path={"*"} element={<Home/>}/>
                                 </Routes>
                             </>

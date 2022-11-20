@@ -31,7 +31,7 @@ CREATE TABLE `tasks`
     `title`      varchar(50) NOT NULL,
     `memo`       longtext,
     `is_done`    boolean     NOT NULL DEFAULT b'0',
-    `priority`   int(10)     NOT NULL DEFAULT b'0',
+    `priority`   int(10)     NOT NULL DEFAULT '5',
     `deadline`   datetime,
     `created_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
