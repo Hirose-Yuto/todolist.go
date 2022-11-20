@@ -52,7 +52,7 @@ CREATE TABLE `users_have_tasks`
 CREATE TABLE `tags`
 (
     `id`          bigint(20)   NOT NULL AUTO_INCREMENT,
-    `description` varchar(255) NOT NULL UNIQUE,
+    `description` varchar(255) NOT NULL,
     PRIMARY KEY (`id`)
 ) DEFAULT CHARSET = utf8mb4;
 

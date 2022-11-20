@@ -44,6 +44,7 @@ func main() {
 	pb.RegisterUserServiceServer(s, &service.UserServer{})
 	pb.RegisterLoginServiceServer(s, &auth.LoginServer{})
 	pb.RegisterTaskServiceServer(s, &task.TaskServer{})
+	pb.RegisterTagServiceServer(s, &task.TagServer{})
 
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {

@@ -23,7 +23,7 @@ func (t TaskServer) GetTask(ctx context.Context, r *pb.GetTaskRequest) (*pb.Task
 	}
 
 	taskId := r.GetTaskId()
-	if err = checkPermission(ctx, taskId, db); err != nil {
+	if err = checkTaskPermission(ctx, taskId, db); err != nil {
 		return &pb.Task{}, err
 	}
 
@@ -93,7 +93,7 @@ func (t TaskServer) UpdateTask(ctx context.Context, r *pb.UpdateTaskRequest) (*e
 		return &empty.Empty{}, status.Error(codes.Internal, "internal error")
 	}
 
-	if err = checkPermission(ctx, taskId, db); err != nil {
+	if err = checkTaskPermission(ctx, taskId, db); err != nil {
 		return &empty.Empty{}, err
 	}
 
@@ -125,7 +125,7 @@ func (t TaskServer) DeleteTask(ctx context.Context, r *pb.DeleteTaskRequest) (*e
 		return &empty.Empty{}, status.Error(codes.Internal, "internal error")
 	}
 
-	if err = checkPermission(ctx, taskId, db); err != nil {
+	if err = checkTaskPermission(ctx, taskId, db); err != nil {
 		return &empty.Empty{}, err
 	}
 
@@ -190,7 +190,7 @@ func (t TaskServer) AssignTask(ctx context.Context, r *pb.AssignTaskRequest) (*e
 
 	taskId := r.GetTaskId()
 
-	if err = checkPermission(ctx, taskId, db); err != nil {
+	if err = checkTaskPermission(ctx, taskId, db); err != nil {
 		return &empty.Empty{}, err
 	}
 
@@ -204,7 +204,7 @@ func (t TaskServer) AssignTask(ctx context.Context, r *pb.AssignTaskRequest) (*e
 	return &empty.Empty{}, nil
 }
 
-func checkPermission(ctx context.Context, taskId uint64, db *sqlx.DB) error {
+func checkTaskPermission(ctx context.Context, taskId uint64, db *sqlx.DB) error {
 	userId, err := auth.GetUserId(&ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "internal error: &s", err)
