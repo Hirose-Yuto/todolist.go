@@ -4,9 +4,13 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jmoiron/sqlx"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"log"
+	"net/http"
+	"os"
 	database "server/db"
 	pb "server/proto"
 	"server/service/auth"
@@ -150,8 +154,16 @@ func (s *UserServer) DeleteUser(ctx context.Context, request *pb.DeleteUserReque
 		return &empty.Empty{}, status.Errorf(codes.Internal, "internal error: %s", err)
 	}
 
-	// ToDo: タスクとコメントの削除
-
+	_, err = db.Exec("DELETE FROM users_have_tasks WHERE user_id = ?", userId)
+	if err != nil {
+		log.Println(err)
+		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
+	}
+	_, err = db.Exec("DELETE FROM comments WHERE user_id = ?", userId)
+	if err != nil {
+		log.Println(err)
+		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
+	}
 	if err := auth.DeleteUserTokenUuids(userId, db); err != nil {
 		return &empty.Empty{}, err
 	}
@@ -160,6 +172,22 @@ func (s *UserServer) DeleteUser(ctx context.Context, request *pb.DeleteUserReque
 	if err != nil {
 		log.Println(err)
 		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
+	}
+
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    "",
+		MaxAge:   -1,
+		Path:     "/",
+		Secure:   os.Getenv("HTTP_SECURE") == "true",
+		HttpOnly: true,
+		SameSite: http.SameSiteDefaultMode,
+	}
+	md := make(metadata.MD, 1)
+	md.Set("set-cookie", cookie.String())
+
+	if err := grpc.SetHeader(ctx, md); err != nil {
+		return nil, err
 	}
 
 	return &empty.Empty{}, nil

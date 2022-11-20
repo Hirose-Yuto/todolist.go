@@ -32,7 +32,7 @@ CREATE TABLE `tasks`
     `memo`       longtext,
     `is_done`    boolean     NOT NULL DEFAULT b'0',
     `priority`   int(10)     NOT NULL DEFAULT '5',
-    `deadline`   datetime,
+    `deadline`   datetime    NOT NULL DEFAULT '1970-01-01 09:00:00',
     `created_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)

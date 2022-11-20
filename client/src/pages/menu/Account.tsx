@@ -8,31 +8,32 @@ import {
     Input,
     InputLabel,
     Modal,
-    Stack
+    Stack, Typography
 } from "@mui/material";
 import {grey} from "@mui/material/colors";
 import {UserContext} from "../../App";
 import {modalStyle} from "../../Style";
 import {UserServiceClient} from "../../proto/UserServiceClientPb";
-import {AccountNameUpdateRequest, PasswordUpdateRequest} from "../../proto/user_pb";
+import {AccountNameUpdateRequest, DeleteUserRequest, PasswordUpdateRequest} from "../../proto/user_pb";
+import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 
 const Account = () => {
     const {user, setUser} = useContext(UserContext)
-    const [changePasswordOpen, setChangePasswordOpen] = useState(false)
     const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [newPasswordValid, setNewPasswordValid] = useState("")
 
-    const handleChangePasswordOpen = () => {
-        setChangePasswordOpen(true)
-    }
-    const handleChangePasswordClose = () => {
-        setChangePasswordOpen(false)
-    }
+    const [changePasswordOpen, setChangePasswordOpen] = useState(false)
+    const handleChangePasswordOpen = () => setChangePasswordOpen(true)
+    const handleChangePasswordClose = () => setChangePasswordOpen(false)
+
+    const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
+    const handleDeleteAccountOpen = () => setDeleteAccountOpen(true)
+    const handleDeleteAccountClose = () => setDeleteAccountOpen(false)
 
 
     const changeAccountName = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        if(!e.target.value || !user || e.target.value === user.getAccountName()) return
+        if (!e.target.value || !user || e.target.value === user.getAccountName()) return
         const client = new UserServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
             withCredentials: true
         })
@@ -63,6 +64,23 @@ const Account = () => {
         })
     }
 
+    const [deletePassword, setDeletePassword] = useState("")
+    const [deleteConfirmPassword, setDeleteConfirmPassword] = useState("")
+    const deleteAccount = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const client = new UserServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
+            withCredentials: true
+        })
+        const req = new DeleteUserRequest()
+        req.setPassword(deletePassword)
+        client.deleteUser(req, null).then(() => {
+            console.log("account deleted")
+            window.location.reload()
+        }).catch(() => {
+            console.log("account deletion failed")
+        })
+    }
+
 
     return (
         <Container sx={{py: 5}}>
@@ -78,6 +96,7 @@ const Account = () => {
                     <Button onClick={handleChangePasswordOpen}>パスワードの変更はこちらから</Button>
                 </Stack>
             </Box>
+            <Button color="error" onClick={handleDeleteAccountOpen} fullWidth>アカウント削除</Button>
             <Modal open={changePasswordOpen} onClose={handleChangePasswordClose}>
                 <form onSubmit={changePassword}>
                     <Stack sx={modalStyle} spacing={2}>
@@ -105,6 +124,30 @@ const Account = () => {
                                 <FormHelperText error>パスワードが異なっています</FormHelperText>}
                         </FormControl>
                         <Button type={"submit"}>変更</Button>
+                    </Stack>
+                </form>
+            </Modal>
+            <Modal open={deleteAccountOpen} onClose={handleDeleteAccountClose}>
+                <form onSubmit={deleteAccount}>
+                    <Stack sx={modalStyle} spacing={2}>
+                        <Typography>本当にアカウントを削除しますか？</Typography>
+                        <FormControl variant="standard" required>
+                            <InputLabel htmlFor="delete_password">パスワード</InputLabel>
+                            <Input id="delete_password"
+                                   onChange={(e) => setDeletePassword(e.target.value)}
+                                   type="password"
+                                   fullWidth/>
+                        </FormControl>
+                        <FormControl variant="standard" required>
+                            <InputLabel htmlFor="delete_confirm_password">パスワード(再入力)</InputLabel>
+                            <Input id="delte_confirm_password"
+                                   onChange={(e) => setDeleteConfirmPassword(e.target.value)}
+                                   type="password"
+                                   fullWidth/>
+                            {deletePassword !== "" && deleteConfirmPassword !== "" && deletePassword !== deleteConfirmPassword &&
+                                <FormHelperText error>パスワードが異なっています</FormHelperText>}
+                        </FormControl>
+                        <Button type={"submit"} color="error">アカウントを削除する</Button>
                     </Stack>
                 </form>
             </Modal>
