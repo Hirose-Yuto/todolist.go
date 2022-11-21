@@ -1,5 +1,5 @@
-import React, {useContext} from "react"
-import {Link} from "react-router-dom";
+import React, {useContext, useState} from "react"
+import {Link, useNavigate} from "react-router-dom";
 import {AppBar, Box, Container, ThemeProvider, Toolbar, Typography} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"
 import {Search, SearchIconWrapper, StyledInputBase, theme,} from "./SearchStyle";
@@ -8,6 +8,9 @@ import {UserContext} from "../../App";
 
 const Header = () => {
     const {user} = useContext(UserContext)
+    const navigate = useNavigate()
+
+    const [searchString, setSearchString] = useState("")
 
     return (
         <ThemeProvider theme={theme}>
@@ -26,6 +29,11 @@ const Header = () => {
                             <StyledInputBase
                                 placeholder="タスクを検索"
                                 inputProps={{'aria-label': 'search'}}
+                                onChange={e => setSearchString(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter')
+                                        navigate('/task', {state: {searchString: searchString}})
+                                }}
                             />
                         </Search>
                         <AccountManager/>

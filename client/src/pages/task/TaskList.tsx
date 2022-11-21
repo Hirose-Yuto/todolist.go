@@ -4,7 +4,7 @@ import {
     Container,
     Typography
 } from "@mui/material";
-import {DataGrid, GridColDef, GridRowParams} from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRowParams, GridToolbar} from '@mui/x-data-grid';
 import Grid2 from "@mui/material/Unstable_Grid2";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
 import {Task, TaskList as TaskListType} from "../../proto/task_pb"
@@ -12,8 +12,12 @@ import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 import TaskCreateModal from "../../components/task/TaskCreateModal";
 import {convertTask, convertTasks, TsTask} from "../../entity/task";
 import TaskDetailModal from "../../components/task/TaskDetailModal";
+import {useLocation, useParams} from "react-router-dom";
 
 const TaskList = () => {
+    const {state} = useLocation()
+    const {searchString} = state ?? ""
+
     const columns: GridColDef[] = [
         {field: 'id', headerName: 'ID', type: 'number'},
         {field: 'title', headerName: 'タスク名', width: 200},
@@ -25,16 +29,24 @@ const TaskList = () => {
         {field: 'memo', headerName: "メモ"}
     ]
 
-    const [rows, setRows] = useState<TsTask[]>([])
+    const [displayRows, setDisplayRows] = useState<TsTask[]>([])
+    const [allRows, setAllRows] = useState<TsTask[]>([])
     const appendRows = (t: Task) => {
-        setRows(rows => [...rows, convertTask(t)])
+        setAllRows(rows => [...rows, convertTask(t)])
     }
     const updateTask = (t: TsTask) => {
-        setRows(rows.map((e: TsTask) => e.id === t.id ? t : e))
+        setAllRows(allRows.map((e: TsTask) => e.id === t.id ? t : e))
     }
     const removeTask = (id: number) => {
-        setRows(rows.filter((t) => t.id !== id))
+        setAllRows(allRows.filter((t) => t.id !== id))
     }
+    useEffect(() => {
+        if (searchString) {
+            setDisplayRows(allRows.filter((t: TsTask) => t.title.includes(searchString)))
+        } else {
+            setDisplayRows(allRows)
+        }
+    }, [allRows, searchString])
 
     useEffect(() => {
         const client = new TaskServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
@@ -42,7 +54,7 @@ const TaskList = () => {
         })
         client.getAllTasks(new Empty(), null).then((r: TaskListType) => {
             console.log(r)
-            setRows(convertTasks(r.getTasksList()))
+            setAllRows(convertTasks(r.getTasksList()))
         })
     }, [])
 
@@ -70,9 +82,20 @@ const TaskList = () => {
 
     return (
         <Container sx={{py: 5}}>
-            <Grid2 container spacing={2} sx={{margin: 1}}>
+            <Grid2 container spacing={2} sx={{margin: 1}} alignItems="center">
                 <Grid2 xs={10}>
-                    <Typography variant="h4" align="left">タスク一覧</Typography>
+                    <Grid2 container alignItems="center">
+                        <Grid2>
+                            <Typography variant="h4" align="left">タスク一覧</Typography>
+                        </Grid2>
+                        {searchString &&
+                            <Grid2>
+                                <Typography>
+                                    "{searchString}"の検索結果
+                                </Typography>
+                            </Grid2>
+                        }
+                    </Grid2>
                 </Grid2>
                 <Grid2 xs={2}>
                     <Button onClick={handleTaskCreateModalOpen}>タスク作成</Button>
@@ -80,7 +103,7 @@ const TaskList = () => {
             </Grid2>
             <div style={{height: 500, width: '100%'}}>
                 <DataGrid
-                    rows={rows}
+                    rows={displayRows}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[]}
