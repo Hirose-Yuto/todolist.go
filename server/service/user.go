@@ -153,17 +153,7 @@ func (s *UserServer) DeleteUser(ctx context.Context, request *pb.DeleteUserReque
 	if err != nil {
 		return &empty.Empty{}, status.Errorf(codes.Internal, "internal error: %s", err)
 	}
-
-	_, err = db.Exec("DELETE FROM users_have_tasks WHERE user_id = ?", userId)
-	if err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
-	}
-	_, err = db.Exec("DELETE FROM comments WHERE user_id = ?", userId)
-	if err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Errorf(codes.Internal, "internal db error")
-	}
+	
 	if err := auth.DeleteUserTokenUuids(userId, db); err != nil {
 		return &empty.Empty{}, err
 	}

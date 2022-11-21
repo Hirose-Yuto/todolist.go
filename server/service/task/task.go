@@ -141,16 +141,6 @@ func (t TaskServer) DeleteTask(ctx context.Context, r *pb.DeleteTaskRequest) (*e
 		return &empty.Empty{}, err
 	}
 
-	_, err = db.Exec("DELETE FROM users_have_tasks WHERE task_id = ?", taskId)
-	if err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
-	}
-	_, err = db.Exec("DELETE FROM tasks_have_tags WHERE task_id = ?", taskId)
-	if err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
-	}
 	_, err = db.Exec("DELETE FROM tasks WHERE id = ?", taskId)
 	if err != nil {
 		log.Println(err)

@@ -3,17 +3,19 @@ package task
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log"
 	database "server/db"
 	pb "server/proto"
+	"server/service/auth"
 )
 
 type TagServer struct {
 }
 
-func (t TagServer) CreateTag(_ context.Context, r *pb.CreateTagRequest) (*pb.Tag, error) {
+func (t TagServer) CreateTag(ctx context.Context, r *pb.CreateTagRequest) (*pb.Tag, error) {
 	description := r.GetDescription()
 	if description == "" {
 		return &pb.Tag{}, status.Error(codes.InvalidArgument, "invalid argument")
@@ -25,7 +27,12 @@ func (t TagServer) CreateTag(_ context.Context, r *pb.CreateTagRequest) (*pb.Tag
 		return &pb.Tag{}, status.Error(codes.Internal, "internal error")
 	}
 
-	res, err := db.Exec("INSERT INTO tags (description) VALUES (?)", description)
+	userId, err := auth.GetUserId(&ctx)
+	if err != nil {
+		return &pb.Tag{}, status.Errorf(codes.Internal, "internal error: &s", err)
+	}
+
+	res, err := db.Exec("INSERT INTO tags (description, user_id) VALUES (?, ?)", description, userId)
 	if err != nil {
 		log.Println(err)
 		return &pb.Tag{}, status.Error(codes.Internal, "internal db error")
@@ -71,10 +78,6 @@ func (t TagServer) DeleteTag(ctx context.Context, r *pb.DeleteTagRequest) (*empt
 	}
 
 	tagId := r.GetTagId()
-	if _, err := db.Exec("DELETE FROM tasks_have_tags WHERE tag_id = ?", tagId); err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
-	}
 	if _, err := db.Exec("DELETE FROM tags WHERE id = ?", tagId); err != nil {
 		log.Println(err)
 		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
@@ -91,8 +94,17 @@ func (t TagServer) SetTagToTask(ctx context.Context, r *pb.TagToTaskRequest) (*e
 	}
 
 	taskId := r.GetTaskId()
+	tagId := r.GetTagId()
 	if err = checkTaskPermission(ctx, taskId, db); err != nil {
-		return &empty.Empty{}, nil
+		return &empty.Empty{}, err
+	}
+	if err = checkTagPermission(ctx, tagId, db); err != nil {
+		return &empty.Empty{}, err
+	}
+
+	if _, err = db.Exec("INSERT INTO tasks_have_tags (task_id, tag_id) VALUES (?, ?)", taskId, tagId); err != nil {
+		log.Println(err)
+		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
 	}
 
 	return &empty.Empty{}, nil
@@ -106,9 +118,36 @@ func (t TagServer) UnSetTagToTask(ctx context.Context, r *pb.TagToTaskRequest) (
 	}
 
 	taskId := r.GetTaskId()
+	tagId := r.GetTagId()
 	if err = checkTaskPermission(ctx, taskId, db); err != nil {
-		return &empty.Empty{}, nil
+		return &empty.Empty{}, err
+	}
+	if err = checkTagPermission(ctx, tagId, db); err != nil {
+		return &empty.Empty{}, err
+	}
+
+	if _, err = db.Exec("DELETE FROM tasks_have_tags WHERE task_id = ? AND tag_id = ?", taskId, tagId); err != nil {
+		log.Println(err)
+		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
 	}
 
 	return &empty.Empty{}, nil
+}
+
+// タグを作成したか。読むだけなら権限は必要ない
+func checkTagPermission(ctx context.Context, tagId uint64, db *sqlx.DB) error {
+	userId, err := auth.GetUserId(&ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "internal error: &s", err)
+	}
+
+	var exist database.ExistCheck
+	if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM tags WHERE id = ? AND user_id = ?) as exist", tagId, userId); err != nil {
+		log.Println(err)
+		return status.Error(codes.Internal, "internal db error")
+	}
+	if !exist.Exist {
+		return status.Error(codes.PermissionDenied, "you haven't created the tag")
+	}
+	return nil
 }

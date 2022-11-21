@@ -81,8 +81,10 @@ const Account = () => {
         const req = new DeleteUserRequest()
         req.setPassword(deletePassword)
         client.deleteUser(req, null).then(() => {
+            setUser(null)
+
+            setSuccessSnackBar(`アカウントを削除しました`)
             console.log("account deleted")
-            window.location.reload()
         }).catch(() => {
             setWarningSnackBar(`アカウント削除に失敗しました`)
             console.log("account deletion failed")
