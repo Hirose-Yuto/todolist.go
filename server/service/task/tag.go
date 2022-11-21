@@ -15,6 +15,27 @@ import (
 type TagServer struct {
 }
 
+func (t TagServer) GetAllTags(ctx context.Context, e *empty.Empty) (*pb.TagList, error) {
+	db, err := database.GetConnection()
+	if err != nil {
+		log.Println(err)
+		return &pb.TagList{}, status.Error(codes.Internal, "internal error")
+	}
+
+	userId, err := auth.GetUserId(&ctx)
+	if err != nil {
+		return &pb.TagList{}, status.Errorf(codes.Internal, "internal error: &s", err)
+	}
+
+	var tags []database.Tag
+	if err = db.Select(&tags, "SELECT * FROM tags WHERE user_id = ?", userId); err != nil {
+		log.Println(err)
+		return &pb.TagList{}, status.Error(codes.Internal, "internal db error")
+	}
+
+	return database.TransTagList(&tags), nil
+}
+
 func (t TagServer) CreateTag(ctx context.Context, r *pb.CreateTagRequest) (*pb.Tag, error) {
 	description := r.GetDescription()
 	if description == "" {
@@ -47,6 +68,7 @@ func (t TagServer) CreateTag(ctx context.Context, r *pb.CreateTagRequest) (*pb.T
 	return &pb.Tag{
 		Id:          uint64(tagId),
 		Description: description,
+		UserId:      userId,
 	}, nil
 }
 

@@ -23,6 +23,8 @@ service TagService {
   rpc DeleteTag (DeleteTagRequest) returns (google.protobuf.Empty);
   rpc SetTagToTask (TagToTaskRequest) returns (google.protobuf.Empty);
   rpc UnSetTagToTask (TagToTaskRequest) returns (google.protobuf.Empty);
+
+  rpc GetAllTags (google.protobuf.Empty) returns (TagList);
 }
 
 message Task {
@@ -83,6 +85,7 @@ message UpdateTagRequest {
 message Tag {
   uint64 id = 1;
   string description = 2;
+  uint64 user_id = 3;
 }
 
 message DeleteTagRequest {
@@ -92,4 +95,8 @@ message DeleteTagRequest {
 message TagToTaskRequest {
   uint64 task_id = 1;
   uint64 tag_id = 2;
+}
+
+message TagList {
+  repeated Tag tags = 1;
 }

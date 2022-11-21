@@ -27,6 +27,7 @@ func TransTag(tag *Tag) *pb.Tag {
 	return &pb.Tag{
 		Id:          tag.ID,
 		Description: tag.Description,
+		UserId:      tag.UserId,
 	}
 }
 
@@ -36,4 +37,12 @@ func transTagList(tags *[]Tag) []*pb.Tag {
 		l[i] = TransTag(&e)
 	}
 	return l
+}
+
+func TransTagList(tags *[]Tag) *pb.TagList {
+	l := make([]*pb.Tag, len(*tags))
+	for i, e := range *tags {
+		l[i] = TransTag(&e)
+	}
+	return &pb.TagList{Tags: l}
 }

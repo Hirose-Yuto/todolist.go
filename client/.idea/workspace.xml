@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="02e02287-7ceb-475f-b5e0-58872593f910" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/pages/menu/Account.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/menu/Account.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker/db/sql/01_create_tables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../docker/db/sql/01_create_tables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +66,7 @@
       <workItem from="1668495704404" duration="124000" />
       <workItem from="1668522381794" duration="33139000" />
       <workItem from="1668927424721" duration="21555000" />
-      <workItem from="1669022032509" duration="5003000" />
+      <workItem from="1669022032509" duration="5380000" />
     </task>
     <servers />
   </component>

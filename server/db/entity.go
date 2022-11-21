@@ -38,6 +38,7 @@ type UserHasTask struct {
 type Tag struct {
 	ID          uint64 `db:"id"`
 	Description string `db:"description"`
+	UserId      uint64 `db:"user_id"`
 }
 
 type TaskHasTag struct {
