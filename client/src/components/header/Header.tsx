@@ -19,7 +19,7 @@ const Header = () => {
                     <Toolbar disableGutters>
                         <Box sx={{flexGrow: 1, display: 'flex'}}>
                             <Link to={"/"} color={"secondary"} style={{margin: 8}}>HOME</Link>
-                            <Link to={"/task"} color={"secondary"} style={{margin: 8}}>Task</Link>
+                            <Link to={"/tag"} color={"secondary"} style={{margin: 8}}>Tag</Link>
                         </Box>
 
                         <Search sx={{flexGrow: 0}}>

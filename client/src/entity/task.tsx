@@ -25,10 +25,6 @@ export const convertTasks = (ts: Task[]): TsTask[] => {
 }
 
 export const convertTask = (t: Task): TsTask => {
-    const tags: TsTag[] = []
-    t.getTagsList().forEach((t: Tag) => {
-        tags.push(convertTags(t))
-    })
     return {
         id: t.getId(),
         title: t.getTitle(),
@@ -37,13 +33,21 @@ export const convertTask = (t: Task): TsTask => {
         priority: t.getPriority(),
         deadline: t.getDeadline()?.toDate(),
         created_at: t.getCratedAt()?.toDate(),
-        tags: tags
+        tags: convertTags(t.getTagsList())
     }
 }
 
-export const convertTags = (t: Tag): TsTag => {
+export const convertTag = (t: Tag): TsTag => {
     return {
         id: t.getId(),
         description: t.getDescription()
     }
+}
+
+export const convertTags = (t: Tag[]): TsTag[] => {
+    const tags: TsTag[] = []
+    t.forEach((t: Tag) => {
+        tags.push(convertTag(t))
+    })
+    return tags
 }

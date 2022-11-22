@@ -11,6 +11,7 @@ import Header from "./components/header/Header";
 import Account from "./pages/menu/Account";
 import TaskList from "./pages/task/TaskList";
 import {Alert, Snackbar} from "@mui/material";
+import TagList from "./pages/task/TagList";
 
 export const UserContext = createContext<{
     user: UserInfo | null,
@@ -88,6 +89,7 @@ function App() {
                                     <Routes>
                                         <Route path={"/menu/account"} element={<Account/>}/>
                                         <Route path={"/task"} element={<TaskList/>}/>
+                                        <Route path={"/tag"} element={<TagList/>}/>
                                         <Route path={"/"} element={<TaskList/>}/>
                                         <Route path={"*"} element={<Navigate to={"/"}/>}/>
                                     </Routes>

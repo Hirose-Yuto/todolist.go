@@ -4,15 +4,15 @@ import {
     Container,
     Typography
 } from "@mui/material";
-import {DataGrid, GridColDef, GridRowParams, GridToolbar} from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRowParams} from '@mui/x-data-grid';
 import Grid2 from "@mui/material/Unstable_Grid2";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
-import {Task, TaskList as TaskListType} from "../../proto/task_pb"
+import {Task, TaskList as TaskListAsType} from "../../proto/task_pb"
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 import TaskCreateModal from "../../components/task/TaskCreateModal";
 import {convertTask, convertTasks, TsTask} from "../../entity/task";
 import TaskDetailModal from "../../components/task/TaskDetailModal";
-import {useLocation, useParams} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 
 const TaskList = () => {
     const {state} = useLocation()
@@ -52,7 +52,7 @@ const TaskList = () => {
         const client = new TaskServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
             withCredentials: true
         })
-        client.getAllTasks(new Empty(), null).then((r: TaskListType) => {
+        client.getAllTasks(new Empty(), null).then((r: TaskListAsType) => {
             console.log(r)
             setAllRows(convertTasks(r.getTasksList()))
         })
