@@ -14,7 +14,7 @@ import {grey} from "@mui/material/colors";
 import {SnackBarContext, UserContext} from "../../App";
 import {modalStyle} from "../../Style";
 import {UserServiceClient} from "../../proto/UserServiceClientPb";
-import {AccountNameUpdateRequest, DeleteUserRequest, PasswordUpdateRequest} from "../../proto/user_pb";
+import {AccountNameUpdateRequest, DeleteUserRequest, PasswordUpdateRequest, UserInfo} from "../../proto/user_pb";
 
 const Account = () => {
     const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
@@ -40,12 +40,13 @@ const Account = () => {
         const req = new AccountNameUpdateRequest()
         req.setAccountName(e.target.value)
         client.updateAccountName(req, null).then(() => {
-            user.setAccountName(e.target.value)
-            setUser(user)
+            const newUser = new UserInfo()
+            newUser.setUserId(user.getUserId())
+            newUser.setAccountName(e.target.value)
+            setUser(newUser)
 
             setSuccessSnackBar(`アカウント名が「${e.target.value}」に更新されました`)
             console.log("account name updated")
-            window.location.reload()
         }).catch((r) => {
             setWarningSnackBar(`アカウント名の更新に失敗しました`)
             console.log(r)
