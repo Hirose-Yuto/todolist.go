@@ -19,6 +19,8 @@ import (
 const port = 9090
 
 func main() {
+	fmt.Println("program start")
+
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal(err)
 	}

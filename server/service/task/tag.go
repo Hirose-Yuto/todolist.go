@@ -108,61 +108,36 @@ func (t TagServer) DeleteTag(ctx context.Context, r *pb.DeleteTagRequest) (*empt
 	return &empty.Empty{}, nil
 }
 
-func (t TagServer) SetTagToTask(ctx context.Context, r *pb.TagToTaskRequest) (*empty.Empty, error) {
+func SetTagsToTask(userId uint64, taskId uint64, tagIds []uint64) error {
 	db, err := database.GetConnection()
 	if err != nil {
 		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal error")
+		return status.Error(codes.Internal, "internal error")
 	}
 
-	taskId := r.GetTaskId()
-	tagId := r.GetTagId()
-	if err = checkTaskPermission(ctx, taskId, db); err != nil {
-		return &empty.Empty{}, err
-	}
-	if err = checkTagPermission(ctx, tagId, db); err != nil {
-		return &empty.Empty{}, err
-	}
-
-	if _, err = db.Exec("INSERT INTO tasks_have_tags (task_id, tag_id) VALUES (?, ?)", taskId, tagId); err != nil {
+	if _, err = db.Exec("DELETE FROM tasks_have_tags where task_id = ?", taskId); err != nil {
 		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
+		return status.Error(codes.Internal, "internal db error")
 	}
 
-	return &empty.Empty{}, nil
-}
+	var taskHasTag []database.TaskHasTag
+	for _, tagId := range tagIds {
+		if err = checkTagPermission(userId, tagId, db); err != nil {
+			return err
+		}
+		taskHasTag = append(taskHasTag, database.TaskHasTag{TagId: tagId, TaskId: taskId})
+	}
 
-func (t TagServer) UnSetTagToTask(ctx context.Context, r *pb.TagToTaskRequest) (*empty.Empty, error) {
-	db, err := database.GetConnection()
-	if err != nil {
+	if _, err = db.NamedExec("INSERT INTO tasks_have_tags (task_id, tag_id) VALUES (:task_id, :tag_id)", taskHasTag); err != nil {
 		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal error")
+		return status.Error(codes.Internal, "internal db error")
 	}
 
-	taskId := r.GetTaskId()
-	tagId := r.GetTagId()
-	if err = checkTaskPermission(ctx, taskId, db); err != nil {
-		return &empty.Empty{}, err
-	}
-	if err = checkTagPermission(ctx, tagId, db); err != nil {
-		return &empty.Empty{}, err
-	}
-
-	if _, err = db.Exec("DELETE FROM tasks_have_tags WHERE task_id = ? AND tag_id = ?", taskId, tagId); err != nil {
-		log.Println(err)
-		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
-	}
-
-	return &empty.Empty{}, nil
+	return nil
 }
 
 // タグを作成したか。読むだけなら権限は必要ない
-func checkTagPermission(ctx context.Context, tagId uint64, db *sqlx.DB) error {
-	userId, err := auth.GetUserId(&ctx)
-	if err != nil {
-		return status.Errorf(codes.Internal, "internal error: &s", err)
-	}
-
+func checkTagPermission(userId uint64, tagId uint64, db *sqlx.DB) error {
 	var exist database.ExistCheck
 	if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM tags WHERE id = ? AND user_id = ?) as exist", tagId, userId); err != nil {
 		log.Println(err)

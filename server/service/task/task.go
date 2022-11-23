@@ -71,11 +71,6 @@ func (t TaskServer) CreateTask(ctx context.Context, r *pb.CreateTaskRequest) (*p
 		return &pb.Task{}, status.Error(codes.Internal, "internal db error")
 	}
 
-	task, tags, err := getTaskAndTags(uint64(taskId), db)
-	if err != nil {
-		return &pb.Task{}, err
-	}
-
 	userId, err := auth.GetUserId(&ctx)
 	if err != nil {
 		return &pb.Task{}, status.Errorf(codes.Internal, "internal error: &s", err)
@@ -86,6 +81,15 @@ func (t TaskServer) CreateTask(ctx context.Context, r *pb.CreateTaskRequest) (*p
 	if err != nil {
 		log.Println(err)
 		return &pb.Task{}, status.Error(codes.Internal, "internal db error")
+	}
+
+	if err = SetTagsToTask(userId, uint64(taskId), r.GetTagIds()); err != nil {
+		return &pb.Task{}, err
+	}
+
+	task, tags, err := getTaskAndTags(uint64(taskId), db)
+	if err != nil {
+		return &pb.Task{}, err
 	}
 
 	return database.TransTask(task, tags), nil
@@ -123,6 +127,14 @@ func (t TaskServer) UpdateTask(ctx context.Context, r *pb.UpdateTaskRequest) (*e
 	if err != nil {
 		log.Println(err)
 		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
+	}
+
+	userId, err := auth.GetUserId(&ctx)
+	if err != nil {
+		return &empty.Empty{}, status.Errorf(codes.Internal, "internal error: &s", err)
+	}
+	if err = SetTagsToTask(userId, taskId, r.GetTagIds()); err != nil {
+		return &empty.Empty{}, err
 	}
 
 	return &empty.Empty{}, nil
@@ -232,7 +244,7 @@ func getTaskAndTags(taskId uint64, db *sqlx.DB) (*database.Task, *[]database.Tag
 
 	var tags []database.Tag
 	if err := db.Select(&tags, `
-SELECT tags.id, description
+SELECT tags.id, description, user_id
 FROM tags        
 	INNER JOIN tasks_have_tags tht on tags.id = tht.tag_id WHERE tht.task_id = ?;`, taskId); err != nil {
 		log.Println(err)
