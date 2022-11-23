@@ -3,6 +3,8 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
+import "user.proto";
+
 option go_package = "./server/proto";
 
 package task;
@@ -15,6 +17,7 @@ service TaskService {
   rpc GetAllTasks (google.protobuf.Empty) returns (TaskList);
 
   rpc AssignTask (AssignTaskRequest) returns (google.protobuf.Empty);
+  rpc GetSharedTasks (google.protobuf.Empty) returns (SharedTaskList);
 }
 
 service TagService {
@@ -69,8 +72,8 @@ message DeleteTaskRequest {
 }
 
 message AssignTaskRequest {
-  uint64 user_id = 1;
-  uint64 task_id = 2;
+  string accountName = 1;
+  repeated uint64 task_ids = 2;
 }
 
 message CreateTagRequest {
@@ -94,4 +97,14 @@ message DeleteTagRequest {
 
 message TagList {
   repeated Tag tags = 1;
+}
+
+message SharedTask {
+  uint64 task_id = 1;
+  string title = 2;
+  repeated user.UserInfo sharing_users = 3;
+}
+
+message SharedTaskList {
+  repeated SharedTask shared_task = 1;
 }

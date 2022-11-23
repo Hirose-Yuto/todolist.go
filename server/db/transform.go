@@ -9,6 +9,14 @@ func TransUser(user *User) *pb.UserInfo {
 	return &pb.UserInfo{UserId: user.ID, AccountName: user.AccountName}
 }
 
+func TransUsers(users *[]User) *[]*pb.UserInfo {
+	l := make([]*pb.UserInfo, len(*users))
+	for i, user := range *users {
+		l[i] = TransUser(&user)
+	}
+	return &l
+}
+
 func TransTask(task *Task, tags *[]Tag) *pb.Task {
 	return &pb.Task{
 		Id:        task.ID,

@@ -59,3 +59,8 @@ type Comments struct {
 type ExistCheck struct {
 	Exist bool `db:"exist"`
 }
+
+type SimpleTask struct {
+	Id    uint64 `db:"id"`
+	Title string `db:"title"`
+}

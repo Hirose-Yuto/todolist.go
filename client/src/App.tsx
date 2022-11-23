@@ -1,7 +1,6 @@
 import React, {createContext, useEffect, useState} from 'react';
 import './App.css';
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import Home from "./pages/Home";
 import {UserInfo} from "./proto/user_pb";
 import {LoginServiceClient} from "./proto/UserServiceClientPb";
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
@@ -12,6 +11,7 @@ import Account from "./pages/menu/Account";
 import TaskList from "./pages/task/TaskList";
 import {Alert, Snackbar} from "@mui/material";
 import TagList from "./pages/task/TagList";
+import Sharing from "./pages/task/Sharing";
 
 export const UserContext = createContext<{
     user: UserInfo | null,
@@ -90,6 +90,7 @@ function App() {
                                         <Route path={"/menu/account"} element={<Account/>}/>
                                         <Route path={"/task"} element={<TaskList/>}/>
                                         <Route path={"/tag"} element={<TagList/>}/>
+                                        <Route path={"/share"} element={<Sharing/>}/>
                                         <Route path={"/"} element={<TaskList/>}/>
                                         <Route path={"*"} element={<Navigate to={"/"}/>}/>
                                     </Routes>
@@ -110,7 +111,7 @@ function App() {
                     </Snackbar>
                     <Snackbar open={isWarningSnackBarOpen} autoHideDuration={3000}
                               onClose={handleIsWarningSnackBarClose}>
-                        <Alert onClose={handleIsWarningSnackBarClose} severity="success" sx={{width: '100%'}}>
+                        <Alert onClose={handleIsWarningSnackBarClose} severity="warning" sx={{width: '100%'}}>
                             {warningSnackBarComment}
                         </Alert>
                     </Snackbar>

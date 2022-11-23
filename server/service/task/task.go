@@ -202,20 +202,88 @@ func (t TaskServer) AssignTask(ctx context.Context, r *pb.AssignTaskRequest) (*e
 		return &empty.Empty{}, status.Error(codes.Internal, "internal error")
 	}
 
-	taskId := r.GetTaskId()
-
-	if err = checkTaskPermission(ctx, taskId, db); err != nil {
-		return &empty.Empty{}, err
-	}
-
-	_, err = db.Exec("INSERT INTO users_have_tasks (user_id, task_id) VALUES (?, ?)",
-		r.GetUserId(), taskId)
-	if err != nil {
+	var assignee database.User
+	if err := db.Get(&assignee, "SELECT * FROM users WHERE account_name = ?", r.GetAccountName()); err != nil {
 		log.Println(err)
+		if err.Error() == "sql: no rows in result set" {
+			return &empty.Empty{}, status.Error(codes.NotFound, "user not found")
+		}
 		return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
 	}
 
+	taskIds := r.GetTaskIds()
+	for _, taskId := range taskIds {
+		if err = checkTaskPermission(ctx, uint64(taskId), db); err != nil {
+			return &empty.Empty{}, err
+		}
+
+		var exist database.ExistCheck
+		if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM users_have_tasks WHERE user_id = ? AND task_id = ?) as exist", assignee.ID, taskId); err != nil {
+			log.Println(err)
+			return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
+		}
+		if exist.Exist {
+			continue
+		}
+		_, err = db.Exec("INSERT INTO users_have_tasks (user_id, task_id) VALUES (?, ?)",
+			assignee.ID, taskId)
+		if err != nil {
+			log.Println(err)
+			return &empty.Empty{}, status.Error(codes.Internal, "internal db error")
+		}
+	}
+
 	return &empty.Empty{}, nil
+}
+
+func (t TaskServer) GetSharedTasks(ctx context.Context, e *empty.Empty) (*pb.SharedTaskList, error) {
+	userId, err := auth.GetUserId(&ctx)
+	if err != nil {
+		return &pb.SharedTaskList{}, status.Errorf(codes.Internal, "internal error: &s", err)
+	}
+
+	db, err := database.GetConnection()
+	if err != nil {
+		log.Println(err)
+		return &pb.SharedTaskList{}, status.Error(codes.Internal, "internal error")
+	}
+
+	var simpleTasks []database.SimpleTask
+	if err := db.Select(&simpleTasks, `
+SELECT tasks.id, tasks.title
+FROM tasks
+WHERE id IN (SELECT task_id
+             FROM users_have_tasks as uht
+             WHERE uht.task_id IN (SELECT task_id FROM users_have_tasks WHERE user_id = ?)
+             GROUP BY uht.task_id
+             HAVING COUNT(user_id) > 1)
+`, userId); err != nil {
+		log.Println(err)
+		if err.Error() == "sql: no rows in result set" {
+			return &pb.SharedTaskList{}, nil
+		}
+		return &pb.SharedTaskList{}, status.Error(codes.Internal, "internal db error")
+	}
+
+	var sts []*pb.SharedTask
+	for _, simpleTask := range simpleTasks {
+		var users []database.User
+		if err := db.Select(&users, `
+SELECT users.id, account_name, password_hash
+FROM users INNER JOIN users_have_tasks uht on users.id = uht.user_id WHERE task_id = ?
+`, simpleTask.Id); err != nil {
+			log.Println(err)
+			return &pb.SharedTaskList{}, status.Error(codes.Internal, "internal db error")
+		}
+		sts = append(sts, &pb.SharedTask{
+			TaskId:       simpleTask.Id,
+			Title:        simpleTask.Title,
+			SharingUsers: *database.TransUsers(&users),
+		})
+	}
+
+	return &pb.SharedTaskList{SharedTask: sts}, nil
+
 }
 
 func checkTaskPermission(ctx context.Context, taskId uint64, db *sqlx.DB) error {

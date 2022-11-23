@@ -21,10 +21,10 @@ const TaskList = () => {
     const {searchString} = state ?? ""
 
     const columns: GridColDef[] = [
-        {field: 'id', headerName: 'ID', type: 'number'},
-        {field: 'title', headerName: 'タスク名', width: 200},
+        {field: 'id', headerName: 'ID', width: 70, type: 'number'},
+        {field: 'title', headerName: 'タスク名',  flex: 1},
         {field: 'is_done', headerName: '完了・未完了', width: 120, type: 'boolean'},
-        {field: 'priority', headerName: '優先度', type: 'number'},
+        {field: 'priority', headerName: '優先度', width: 70, type: 'number'},
         {
             field: 'deadline', headerName: '締め切り', width: 160, type: 'dateTime',
             renderCell: (params: GridRenderCellParams<Date>) => {
@@ -32,6 +32,7 @@ const TaskList = () => {
             }
         },
         {field: 'created_at', headerName: '作成日時', width: 160, type: 'dateTime'},
+        {field: 'memo', headerName: "メモ",  flex: 1},
         {
             field: 'tags', headerName: "タグ", width: 160,
             renderCell: (params: GridRenderCellParams<TsTag[]>) =>
@@ -46,7 +47,6 @@ const TaskList = () => {
                     }
                 </Stack>
         },
-        {field: 'memo', headerName: "メモ"}
     ]
 
     const [displayRows, setDisplayRows] = useState<TsTask[]>([])

@@ -150,7 +150,7 @@ const TaskDetailModal : React.FC<Props> = (props: Props) => {
                         <Input id="priority"
                                onChange={(e) => setDeadline(new Date(e.target.value))}
                                type="datetime-local"
-                               value={deadline.getTime() !== 0 ? deadline.toISOString().slice(0, 19) : null}
+                               value={deadline.getTime() !== 0 ? deadline.toISOString().slice(0, 19) : ""}
                                fullWidth/>
                     </FormControl>
                     <FormControl variant="standard">

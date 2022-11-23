@@ -120,6 +120,10 @@ func SetTagsToTask(userId uint64, taskId uint64, tagIds []uint64) error {
 		return status.Error(codes.Internal, "internal db error")
 	}
 
+	if len(tagIds) == 0 {
+		return nil
+	}
+
 	var taskHasTag []database.TaskHasTag
 	for _, tagId := range tagIds {
 		if err = checkTagPermission(userId, tagId, db); err != nil {

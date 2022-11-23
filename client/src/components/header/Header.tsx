@@ -20,6 +20,7 @@ const Header = () => {
                         <Box sx={{flexGrow: 1, display: 'flex'}}>
                             <Link to={"/"} color={"secondary"} style={{margin: 8}}>HOME</Link>
                             <Link to={"/tag"} color={"secondary"} style={{margin: 8}}>Tag</Link>
+                            <Link to={"/share"} color={"secondary"} style={{margin: 8}}>Share</Link>
                         </Box>
 
                         <Search sx={{flexGrow: 0}}>
