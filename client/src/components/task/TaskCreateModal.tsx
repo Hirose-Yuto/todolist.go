@@ -1,15 +1,27 @@
 import React, {useContext, useState} from "react"
-import {Button, FormControl, FormHelperText, Input, InputLabel, Modal, Stack, Typography} from "@mui/material";
+import {
+    Button, Checkbox,
+    FormControl, FormControlLabel, FormGroup,
+    FormHelperText,
+    FormLabel,
+    Input,
+    InputLabel,
+    Modal,
+    Stack,
+    Typography
+} from "@mui/material";
 import {modalStyle} from "../../Style";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
 import {CreateTaskRequest, Task} from "../../proto/task_pb";
 import {Timestamp} from "google-protobuf/google/protobuf/timestamp_pb";
 import {SnackBarContext} from "../../App";
+import {TsTag} from "../../entity/task";
 
 type Props = {
     open: boolean,
-    onClose: () => void
-    appendRows: (t: Task) => void
+    onClose: () => void,
+    appendRows: (t: Task) => void,
+    tags: TsTag[]
 }
 
 const TaskCreateModal: React.FC<Props> = (props: Props) => {
@@ -19,6 +31,7 @@ const TaskCreateModal: React.FC<Props> = (props: Props) => {
     const [memo, setMemo] = useState("")
     const [priority, setPriority] = useState(5)
     const [deadline, setDeadline] = useState<Date | null>(null)
+    const [selectedTagIds, setSelectedTagIds] = useState<Set<number>>(new Set())
 
     const createTask = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -31,20 +44,34 @@ const TaskCreateModal: React.FC<Props> = (props: Props) => {
         req.setPriority(priority)
         req.setIsDone(false)
         req.setDeadline(deadline ? Timestamp.fromDate(deadline) : undefined)
+        req.setTagIdsList(Array.from(selectedTagIds))
         client.createTask(req, null).then((r: Task) => {
             setSuccessSnackBar("タスク作成に成功しました")
             console.log(r)
 
             props.appendRows(r)
             props.onClose()
+
+            setTitle("")
+            setMemo("")
+            setPriority(5)
+            setDeadline(null)
+            setSelectedTagIds(new Set())
         }).catch(r => {
             setWarningSnackBar("タスク作成に失敗しました")
             console.log(r)
         })
-        setTitle("")
-        setMemo("")
-        setPriority(5)
-        setDeadline(null)
+    }
+
+    const handleTagChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let newTags
+        if (e.target.checked) {
+            newTags = selectedTagIds.add(parseInt(e.target.value))
+        } else {
+            selectedTagIds.delete(parseInt(e.target.value))
+            newTags = selectedTagIds
+        }
+        setSelectedTagIds(newTags)
     }
 
     return (
@@ -79,6 +106,18 @@ const TaskCreateModal: React.FC<Props> = (props: Props) => {
                                onChange={(e) => setDeadline(new Date(e.target.value))}
                                type="datetime-local"
                                fullWidth/>
+                    </FormControl>
+                    <FormControl variant="standard">
+                        <FormLabel htmlFor="tags">タグ</FormLabel>
+                        <FormGroup>
+                            {props.tags.map((tag: TsTag) => {
+                                return <FormControlLabel
+                                    key={tag.id}
+                                    control={<Checkbox name={tag.id.toString()} value={tag.id} onChange={handleTagChange} />}
+                                    label={tag.description}
+                                />
+                            })}
+                        </FormGroup>
                     </FormControl>
                     <Button type={"submit"}>作成</Button>
                 </Stack>

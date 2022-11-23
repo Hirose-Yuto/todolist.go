@@ -1,18 +1,20 @@
 import React, {useEffect, useState} from "react"
 import {
+    Box,
     Button,
-    Container,
+    Container, Stack,
     Typography
 } from "@mui/material";
-import {DataGrid, GridColDef, GridRowParams} from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRenderCellParams, GridRowHeightParams, GridRowParams} from '@mui/x-data-grid';
 import Grid2 from "@mui/material/Unstable_Grid2";
-import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
-import {Task, TaskList as TaskListAsType} from "../../proto/task_pb"
+import {TagServiceClient, TaskServiceClient} from "../../proto/TaskServiceClientPb";
+import {TagList as TagListAsType, Task, TaskList as TaskListAsType} from "../../proto/task_pb"
 import {Empty} from "google-protobuf/google/protobuf/empty_pb";
 import TaskCreateModal from "../../components/task/TaskCreateModal";
-import {convertTask, convertTasks, TsTask} from "../../entity/task";
+import {convertTags, convertTask, convertTasks, TsTag, TsTask} from "../../entity/task";
 import TaskDetailModal from "../../components/task/TaskDetailModal";
 import {useLocation} from "react-router-dom";
+import {grey} from "@mui/material/colors";
 
 const TaskList = () => {
     const {state} = useLocation()
@@ -23,14 +25,34 @@ const TaskList = () => {
         {field: 'title', headerName: 'タスク名', width: 200},
         {field: 'is_done', headerName: '完了・未完了', width: 120, type: 'boolean'},
         {field: 'priority', headerName: '優先度', type: 'number'},
-        {field: 'deadline', headerName: '締め切り', width: 160, type: 'dateTime'},
+        {
+            field: 'deadline', headerName: '締め切り', width: 160, type: 'dateTime',
+            renderCell: (params: GridRenderCellParams<Date>) => {
+                return params.value?.getTime() !== 0 ? params.value?.toLocaleString() : ""
+            }
+        },
         {field: 'created_at', headerName: '作成日時', width: 160, type: 'dateTime'},
-        {field: 'tags', headerName: "タグ"},
+        {
+            field: 'tags', headerName: "タグ", width: 160,
+            renderCell: (params: GridRenderCellParams<TsTag[]>) =>
+                <Stack alignItems={"center"} flex={1}>
+                    {
+                        params.value?.map((t: TsTag, index: number) =>
+                            <Box key={index}
+                                 sx={{border: 1, borderColor: grey[200], boxShadow: 1, width: "100%"}}
+                            >
+                                {t.description}
+                            </Box>)
+                    }
+                </Stack>
+        },
         {field: 'memo', headerName: "メモ"}
     ]
 
     const [displayRows, setDisplayRows] = useState<TsTask[]>([])
     const [allRows, setAllRows] = useState<TsTask[]>([])
+    type numOfTagsType = { [index: number]: number }
+    const [numOfTags, setNumOfTags] = useState<numOfTagsType>({})
     const appendRows = (t: Task) => {
         setAllRows(rows => [...rows, convertTask(t)])
     }
@@ -49,14 +71,25 @@ const TaskList = () => {
     }, [allRows, searchString])
 
     useEffect(() => {
-        const client = new TaskServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
+        const taskClient = new TaskServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
             withCredentials: true
         })
-        client.getAllTasks(new Empty(), null).then((r: TaskListAsType) => {
+        taskClient.getAllTasks(new Empty(), null).then((r: TaskListAsType) => {
             console.log(r)
             setAllRows(convertTasks(r.getTasksList()))
+            const n: numOfTagsType = {}
+            r.getTasksList().forEach(t => n[t.getId()] = t.getTagsList().length)
+            setNumOfTags(n)
+        })
+        const tagClient = new TagServiceClient(process.env.REACT_APP_BACKEND_URL ?? "", null, {
+            withCredentials: true
+        })
+        tagClient.getAllTags(new Empty(), null).then((r: TagListAsType) => {
+            console.log(r)
+            setAllTags(convertTags(r.getTagsList()))
         })
     }, [])
+    const [allTags, setAllTags] = useState<TsTag[]>([])
 
     const [taskCrateModalOpen, setTaskCrateModalOpen] = useState(false)
     const handleTaskCreateModalOpen = () => {
@@ -108,14 +141,21 @@ const TaskList = () => {
                     pageSize={10}
                     rowsPerPageOptions={[]}
                     onRowClick={onRowClick}
+                    getRowHeight={(param: GridRowHeightParams) => numOfTags[param.id as number] > 2 ? 'auto' : 52}
+                    getEstimatedRowHeight={() => 100}
                 />
             </div>
-            <TaskCreateModal open={taskCrateModalOpen} onClose={handleTaskCreateModalClose} appendRows={appendRows}/>
+            <TaskCreateModal open={taskCrateModalOpen}
+                             onClose={handleTaskCreateModalClose}
+                             appendRows={appendRows}
+                             tags={allTags}
+            />
             <TaskDetailModal open={taskDetailModalOpen}
                              onClose={handleTaskDetailModalClose}
                              task={selectedTask}
                              updateTask={updateTask}
                              removeTask={removeTask}
+                             tags={allTags}
             />
         </Container>)
 }

@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useState} from "react"
 import {
-    Button,
-    FormControl,
-    FormHelperText,
+    Button, Checkbox,
+    FormControl, FormControlLabel, FormGroup,
+    FormHelperText, FormLabel,
     Input,
     InputLabel,
     MenuItem,
@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {modalStyle} from "../../Style";
 import {DeleteTaskRequest, UpdateTaskRequest} from "../../proto/task_pb";
-import {TsTask} from "../../entity/task";
+import {TsTag, TsTask} from "../../entity/task";
 import {TaskServiceClient} from "../../proto/TaskServiceClientPb";
 import {Timestamp} from "google-protobuf/google/protobuf/timestamp_pb";
 import Grid2 from "@mui/material/Unstable_Grid2";
@@ -23,10 +23,11 @@ type Props = {
     onClose: () => void,
     task: TsTask | undefined,
     updateTask: (t: TsTask) => void,
-    removeTask: (id: number) => void
+    removeTask: (id: number) => void,
+    tags: TsTag[]
 }
 
-const TaskDetailModal: React.FC<Props> = (props: Props) => {
+const TaskDetailModal : React.FC<Props> = (props: Props) => {
     const {setSuccessSnackBar, setWarningSnackBar} = useContext(SnackBarContext)
 
     const [title, setTitle] = useState("")
@@ -34,6 +35,7 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
     const [isDone, setIsDone] = useState(false)
     const [priority, setPriority] = useState(5)
     const [deadline, setDeadline] = useState<Date>(new Date())
+    const [selectedTagIds, setSelectedTagIds] = useState<Set<number>>(new Set())
 
     useEffect(() => {
         setTitle(props.task?.title ?? "")
@@ -41,6 +43,7 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
         setIsDone(props.task?.is_done ?? false)
         setPriority(props.task?.priority ?? 5)
         setDeadline(props.task?.deadline ?? new Date())
+        setSelectedTagIds(new Set(props.task?.tags.map(t => t.id) ?? []))
     }, [props.task])
 
     const updateTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,6 +58,7 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
         req.setPriority(priority)
         req.setIsDone(isDone)
         req.setDeadline(deadline ? Timestamp.fromDate(deadline) : undefined)
+        req.setTagIdsList(Array.from(selectedTagIds))
         client.updateTask(req, null).then(() => {
             props.updateTask({
                 id: props.task?.id ?? 0,
@@ -64,11 +68,10 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
                 is_done: isDone,
                 deadline: deadline,
                 created_at: props.task?.created_at ?? new Date(),
-                tags: props.task?.tags ?? []
+                tags: props.tags.filter(t=>selectedTagIds.has(t.id))
             })
             setSuccessSnackBar("タスクの更新に成功しました")
             console.log("task updated")
-
             props.onClose()
         }).catch(r => {
             setWarningSnackBar("タスクの更新に失敗しました")
@@ -92,6 +95,17 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
             console.log(r)
         })
     }
+
+    const handleTagChange = (id: number) => {
+        let newTags = new Set(selectedTagIds)
+        if (newTags.has(id)) {
+            newTags.delete(id)
+        } else {
+            newTags = newTags.add(id)
+        }
+        setSelectedTagIds(newTags)
+    }
+
 
     return (
         <Modal open={props.open} onClose={props.onClose}>
@@ -136,8 +150,24 @@ const TaskDetailModal: React.FC<Props> = (props: Props) => {
                         <Input id="priority"
                                onChange={(e) => setDeadline(new Date(e.target.value))}
                                type="datetime-local"
-                               value={deadline}
+                               value={deadline.getTime() !== 0 ? deadline.toISOString().slice(0, 19) : null}
                                fullWidth/>
+                    </FormControl>
+                    <FormControl variant="standard">
+                        <FormLabel htmlFor="tags">タグ</FormLabel>
+                        <FormGroup>
+                            {props.tags.map((tag: TsTag) => {
+                                return <FormControlLabel
+                                    key={tag.id}
+                                    control={<Checkbox name={tag.id.toString()}
+                                                       value={tag.id}
+                                                       onClick={() => handleTagChange(tag.id)}
+                                                       checked={selectedTagIds.has(tag.id)}
+                                    />}
+                                    label={tag.description}
+                                />
+                            })}
+                        </FormGroup>
                     </FormControl>
                     <Grid2 container justifyItems={"center"}>
                         <Grid2>
