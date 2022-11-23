@@ -20,7 +20,7 @@ import {TsTag} from "../../entity/task";
 type Props = {
     open: boolean,
     onClose: () => void,
-    appendRows: (t: Task) => void,
+    setRerenderTask: React.Dispatch<React.SetStateAction<{}>>,
     tags: TsTag[]
 }
 
@@ -49,7 +49,7 @@ const TaskCreateModal: React.FC<Props> = (props: Props) => {
             setSuccessSnackBar("タスク作成に成功しました")
             console.log(r)
 
-            props.appendRows(r)
+            props.setRerenderTask({})
             props.onClose()
 
             setTitle("")

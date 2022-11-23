@@ -20,6 +20,8 @@ const TaskList = () => {
     const {state} = useLocation()
     const {searchString} = state ?? ""
 
+    const [rerenderTask, setRerenderTask] = useState({})
+
     const columns: GridColDef[] = [
         {field: 'id', headerName: 'ID', width: 70, type: 'number'},
         {field: 'title', headerName: 'タスク名',  flex: 1},
@@ -53,15 +55,7 @@ const TaskList = () => {
     const [allRows, setAllRows] = useState<TsTask[]>([])
     type numOfTagsType = { [index: number]: number }
     const [numOfTags, setNumOfTags] = useState<numOfTagsType>({})
-    const appendRows = (t: Task) => {
-        setAllRows(rows => [...rows, convertTask(t)])
-    }
-    const updateTask = (t: TsTask) => {
-        setAllRows(allRows.map((e: TsTask) => e.id === t.id ? t : e))
-    }
-    const removeTask = (id: number) => {
-        setAllRows(allRows.filter((t) => t.id !== id))
-    }
+
     useEffect(() => {
         if (searchString) {
             setDisplayRows(allRows.filter((t: TsTask) => t.title.includes(searchString)))
@@ -88,7 +82,7 @@ const TaskList = () => {
             console.log(r)
             setAllTags(convertTags(r.getTagsList()))
         })
-    }, [])
+    }, [rerenderTask])
     const [allTags, setAllTags] = useState<TsTag[]>([])
 
     const [taskCrateModalOpen, setTaskCrateModalOpen] = useState(false)
@@ -147,14 +141,13 @@ const TaskList = () => {
             </div>
             <TaskCreateModal open={taskCrateModalOpen}
                              onClose={handleTaskCreateModalClose}
-                             appendRows={appendRows}
+                             setRerenderTask={setRerenderTask}
                              tags={allTags}
             />
             <TaskDetailModal open={taskDetailModalOpen}
                              onClose={handleTaskDetailModalClose}
                              task={selectedTask}
-                             updateTask={updateTask}
-                             removeTask={removeTask}
+                             setRerenderTask={setRerenderTask}
                              tags={allTags}
             />
         </Container>)

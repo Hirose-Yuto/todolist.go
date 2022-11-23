@@ -22,8 +22,7 @@ type Props = {
     open: boolean,
     onClose: () => void,
     task: TsTask | undefined,
-    updateTask: (t: TsTask) => void,
-    removeTask: (id: number) => void,
+    setRerenderTask: React.Dispatch<React.SetStateAction<{}>>,
     tags: TsTag[]
 }
 
@@ -60,16 +59,7 @@ const TaskDetailModal : React.FC<Props> = (props: Props) => {
         req.setDeadline(deadline ? Timestamp.fromDate(deadline) : undefined)
         req.setTagIdsList(Array.from(selectedTagIds))
         client.updateTask(req, null).then(() => {
-            props.updateTask({
-                id: props.task?.id ?? 0,
-                title: title,
-                memo: memo,
-                priority: priority,
-                is_done: isDone,
-                deadline: deadline,
-                created_at: props.task?.created_at ?? new Date(),
-                tags: props.tags.filter(t=>selectedTagIds.has(t.id))
-            })
+            props.setRerenderTask({})
             setSuccessSnackBar("タスクの更新に成功しました")
             console.log("task updated")
             props.onClose()
@@ -88,7 +78,7 @@ const TaskDetailModal : React.FC<Props> = (props: Props) => {
         client.deleteTask(req, null).then(() => {
             setSuccessSnackBar("タスクの削除に成功しました")
             console.log("task deleted")
-            props.removeTask(props.task?.id ?? 0)
+            props.setRerenderTask({})
             props.onClose()
         }).catch(r => {
             setWarningSnackBar("タスクの削除に失敗しました")

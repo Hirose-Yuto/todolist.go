@@ -3,7 +3,6 @@ package task
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log"
@@ -126,9 +125,6 @@ func SetTagsToTask(userId uint64, taskId uint64, tagIds []uint64) error {
 
 	var taskHasTag []database.TaskHasTag
 	for _, tagId := range tagIds {
-		if err = checkTagPermission(userId, tagId, db); err != nil {
-			return err
-		}
 		taskHasTag = append(taskHasTag, database.TaskHasTag{TagId: tagId, TaskId: taskId})
 	}
 
@@ -137,18 +133,5 @@ func SetTagsToTask(userId uint64, taskId uint64, tagIds []uint64) error {
 		return status.Error(codes.Internal, "internal db error")
 	}
 
-	return nil
-}
-
-// タグを作成したか。読むだけなら権限は必要ない
-func checkTagPermission(userId uint64, tagId uint64, db *sqlx.DB) error {
-	var exist database.ExistCheck
-	if err := db.Get(&exist, "SELECT EXISTS(SELECT * FROM tags WHERE id = ? AND user_id = ?) as exist", tagId, userId); err != nil {
-		log.Println(err)
-		return status.Error(codes.Internal, "internal db error")
-	}
-	if !exist.Exist {
-		return status.Error(codes.PermissionDenied, "you haven't created the tag")
-	}
 	return nil
 }
